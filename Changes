@@ -1,0 +1,56 @@
+Revision history for Selenium-Remote-Driver
+
+0.11   8-16-2011
+  This is quite a large list for this release and will be
+  the first cpan release. The later releases will hopefully 
+  happen often and won't be quite as large.
+
+        - subroutine calls carp when an error occurs or when
+          an element cannot be found
+        - if an element cannot be found, carp should tell you
+          which line in your local script where the element was
+          not found
+        - added the following driver api calls
+           click,double_click,button_down,button_up,close,status,
+           send_modifier,execute_script,execute_async_script
+
+        - fixed the following api calls
+           refresh,delete_cookie_named
+        - $element->get_value is deprecated...
+           subroutine now points to get_attribute('value')
+        - added the following element api calls
+           describe
+        - added initial IDE plugin for the Selenium-IDE
+           (this is based off the Rspec webdriver ide plugin)
+
+        - Added "extra_capabilities" named argument to the driver
+        - make send_keys accept one or more string argument
+        - added javascript method to driver
+           (thanks Phil Kania!)
+
+        - fixed issue: check for empty string before trying to decode
+        - fixed issue: if script using the module ever forked, the
+          driver would call quit whenever that fork was closed
+        - fixed issue: Marked as deprecated: WebElement::set_selected
+          and WebElement::toggle
+        - fixed issue: global $driver variable in WebElement caused the
+          remote connection to be destroyed before the driver was able
+          to call quit()
+
+        - fixed issues:
+          - improper definition of setImplicitWaitTimeout
+          - Driver.pm: missing 'css' entry in FINDERS
+          - Driver.pm::find_elements: set up $using correctly
+            (thanks Phil Mitchell!)
+
+0.10    5-2-2010
+        - Implemented support for JSON wire protocol as of a4 release of
+        Selenium 2.0.
+        - The main Driver & WebElement modules are implemented & functional.
+        - Added unit tests for Driver. As of this moment only live testing is
+        supported as the server itself is alpha & mocking its behavior doesn't
+        help our cause.
+        - Added POD for Driver & WebElement
+0.01    2-21-2010
+        First version, released on an unsuspecting world.
+
