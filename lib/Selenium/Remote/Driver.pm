@@ -2,7 +2,6 @@ package Selenium::Remote::Driver;
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 use Carp;
 our @CARP_NOT;
@@ -24,7 +23,7 @@ use constant FINDERS => {
       xpath             => 'xpath',
 };
 
-our $VERSION = "0.11";
+our $VERSION = "0.12";
 
 =head1 NAME
 
@@ -1226,7 +1225,7 @@ sub find_child_element {
     my $using = ( defined $method ) ? $method : 'xpath';
     if (exists FINDERS->{$using}) {
         my $res = { 'command' => 'findChildElement', 'id' => $elem->{id} };
-        my $params = { 'using' => $using, 'value' => $query };
+        my $params = { 'using' => FINDERS->{$using}, 'value' => $query };
         my $ret_data = eval {$self->_execute_command( $res, $params );};
         if($@) {
           if($@ =~ /(An element could not be located on the page using the given search parameters)/) {
@@ -1282,7 +1281,7 @@ sub find_child_elements {
     my $using = ( defined $method ) ? $method : 'xpath';
     if (exists FINDERS->{$using}) {
         my $res = { 'command' => 'findChildElements', 'id' => $elem->{id} };
-        my $params = { 'using' => $using, 'value' => $query };
+        my $params = { 'using' => FINDERS->{$using}, 'value' => $query };
         my $ret_data = eval {$self->_execute_command( $res, $params );};
         if($@) {
           if($@ =~ /(An element could not be located on the page using the given search parameters)/) {
