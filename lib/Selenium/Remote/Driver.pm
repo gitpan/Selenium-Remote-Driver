@@ -23,7 +23,7 @@ use constant FINDERS => {
       xpath             => 'xpath',
 };
 
-our $VERSION = "0.12";
+our $VERSION = "0.13";
 
 =head1 NAME
 
@@ -420,6 +420,33 @@ sub get_capabilities {
     return $self->_execute_command($res);
 }
 
+=head2 set_timeout
+
+ Description:
+    Set the amount of time, in milliseconds, that asynchronous scripts executed
+    by execute_async_script() are permitted to run before they are
+    aborted and a |Timeout| error is returned to the client.
+ 
+ Input:
+    ms - <NUMBER> - The amount of time, in milliseconds, that time-limited
+            commands are permitted to run.
+
+ Usage:
+    $driver->set_async_script_timeout(1000);
+
+=cut
+
+sub set_async_script_timeout {
+    my ($self, $ms) = @_;
+    if (not defined $ms)
+    {
+        return "Expecting timeout in ms";
+    }
+    my $res  = {'command' => 'setAsyncScriptTimeout'};
+    my $params  = {'ms' => $ms};
+    return $self->_execute_command($res, $params);
+}
+
 =head2 set_implicit_wait_timeout
 
  Description:
@@ -529,6 +556,54 @@ sub get_current_window_handle {
 sub get_window_handles {
     my $self = shift;
     my $res = { 'command' => 'getWindowHandles' };
+    return $self->_execute_command($res);
+}
+
+=head2 get_window_size
+
+ Description:
+    Retrieve the window size
+ 
+ Input:
+    STRING - <optional> - window handle (default is 'current' window)
+
+ Output:
+    HASH - containing keys 'height' & 'width'
+
+ Usage:
+    my $window_size = $driver->get_window_size();
+    print $window_size->{'height'}, $window_size->('width');
+
+=cut
+
+sub get_window_size {
+    my ( $self, $window ) = @_;
+    $window = (defined $window)?$window:'current';
+    my $res = { 'command' => 'getWindowSize', 'window_handle' => $window };
+    return $self->_execute_command($res);
+}
+
+=head2 get_window_position
+
+ Description:
+    Retrieve the window position
+ 
+ Input:
+    STRING - <optional> - window handle (default is 'current' window)
+
+ Output:
+    HASH - containing keys 'x' & 'y'
+
+ Usage:
+    my $window_size = $driver->get_window_position();
+    print $window_size->{'x'}, $window_size->('y');
+
+=cut
+
+sub get_window_position {
+    my ( $self, $window ) = @_;
+    $window = (defined $window)?$window:'current';
+    my $res = { 'command' => 'getWindowPosition', 'window_handle' => $window };
     return $self->_execute_command($res);
 }
 
@@ -948,6 +1023,72 @@ sub set_speed {
     return $self->_execute_command( $res, $params );
 }
 
+=head2 set_window_position
+
+ Description:
+    Set the position (on screen) where you want your browser to be displayed.
+
+ Input:
+    INT - x co-ordinate
+    INT - y co-ordinate
+    STRING - <optional> - window handle (default is 'current' window)
+
+ Output:
+    BOOLEAN - Success or failure
+
+ Usage:
+    $driver->set_window_position(50, 50);
+
+=cut
+
+sub set_window_position {
+    my ( $self, $x, $y, $window ) = @_;
+    $window = (defined $window)?$window:'current';
+    if (not defined $x and not defined $y){
+        return "X & Y co-ordinates are required";
+    }
+    my $res = { 'command' => 'setWindowPosition', 'window_handle' => $window };
+    my $params = { 'x' => $x, 'y' => $y };
+    my $ret = $self->_execute_command($res, $params);
+    if ($ret =~ m/204/g) {
+        return 1;
+    }
+    else { return 0; }
+}
+
+=head2 set_window_size
+
+ Description:
+    Set the size of the browser window
+
+ Input:
+    INT - height of the window
+    INT - width of the window
+    STRING - <optional> - window handle (default is 'current' window)
+ 
+ Output:
+    BOOLEAN - Success or failure
+
+ Usage:
+    $driver->set_window_size(640, 480);
+
+=cut
+
+sub set_window_size {
+    my ( $self, $height, $width, $window ) = @_;
+    $window = (defined $window)?$window:'current';
+    if (not defined $height and not defined $width){
+        return "height & width of browser are required";
+    }
+    my $res = { 'command' => 'setWindowSize', 'window_handle' => $window };
+    my $params = { 'height' => $height, 'width' => $width };
+    my $ret = $self->_execute_command($res, $params);
+    if ($ret =~ m/204/g) {
+        return 1;
+    }
+    else { return 0; }
+}
+
 =head2 get_all_cookies
 
  Description:
@@ -1325,19 +1466,12 @@ sub find_child_elements {
 sub get_active_element {
     my ($self) = @_;
     my $res = { 'command' => 'getActiveElement' };
-    return $self->_execute_command($res);
-}
-
-# Not yet supported on the server
-sub describe_element {
-    my ( $self, $element ) = @_;
-
-    #if (not defined $element) {
-    #    return "Element not provided";
-    #}
-    #my $res = {'command' => 'desribeElement', 'name' => $element};
-    #return $self->_execute_command($res);
-    return "Not yet supported";
+    my $ret_data = eval { $self->_execute_command($res) };
+    if ($@) {
+        croak $@;
+    } else {
+        return new Selenium::Remote::WebElement($ret_data->{ELEMENT}, $self);
+    }
 }
 
 =head2 send_modifier
@@ -1501,10 +1635,6 @@ L<http://code.google.com/p/selenium/>.
 The Selenium issue tracking system is available online at
 L<http://github.com/aivaturi/Selenium-Remote-Driver/issues>.
 
-=head1 CURRENT MAINTAINER
-
-Gordon Child C<< <gchild@gordonchild.com> >>
-
 =head1 AUTHOR
 
 Perl Bindings for Selenium Remote Driver by Aditya Ivaturi C<< <ivaturi@gmail.com> >>
@@ -1515,9 +1645,15 @@ The following people have contributed to this module. (Thanks!)
 
 =over 4
 
+=item * Gordon Child
+
 =item * Phil Kania
 
 =item * Phil Mitchell
+
+=item * Allen Lew
+
+=item * Tom Hukins
 
 =back
 
