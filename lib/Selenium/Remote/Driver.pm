@@ -23,7 +23,7 @@ use constant FINDERS => {
       xpath             => 'xpath',
 };
 
-our $VERSION = "0.13";
+our $VERSION = "0.14";
 
 =head1 NAME
 
@@ -255,6 +255,29 @@ sub new_session {
     }
 }
 
+=head2 get_sessions
+
+  Description:
+    Returns a list of the currently active sessions. Each session will be
+    returned as an array of Hashes with the following keys:
+    
+    'id' : The session ID
+    'capabilities: An object describing session's capabilities
+
+  Output:
+    Array of Hashes
+
+  Usage:
+    print Dumper $driver->get_sessions();
+
+=cut
+
+sub get_sessions{
+    my ($self) = @_;
+    my $res = { 'command' => 'getSessions' };
+    return $self->_execute_command($res);
+}
+
 =head2 status
 
   Description:
@@ -286,10 +309,47 @@ sub status {
     my $string = $driver->get_alert_text;
 
 =cut
+
 sub get_alert_text {
   my ($self) = @_;
   my $res = { 'command' => 'getAlertText' };
   return $self->_execute_command($res);
+}
+
+=head2 send_keys_to_active_element
+
+ Description:
+    Send a sequence of key strokes to the active element. This command is
+    similar to the send keys command in every aspect except the implicit
+    termination: The modifiers are not released at the end of the call.
+    Rather, the state of the modifier keys is kept between calls, so mouse
+    interactions can be performed while modifier keys are depressed.
+
+ Input: 1
+    Required:
+        {ARRAY | STRING} - Array of strings or a string.
+
+ Usage:
+    $driver->send_keys_to_active_element('abcd', 'efg');
+    $driver->send_keys_to_active_element('hijk');
+    
+    or
+    
+    # include the WDKeys module
+    use Selenium::Remote::WDKeys;
+    .
+    .
+    $driver->send_keys_to_active_element(KEYS->{'space'}, KEYS->{'enter'});
+
+=cut
+
+sub send_keys_to_active_element {
+    my ($self, @strings) = @_;
+    my $res = { 'command' => 'sendKeysToActiveElement' };
+    my $params = {
+        'value' => \@strings,
+    };
+    return $self->_execute_command($res, $params);
 }
 
 =head2 send_keys_to_alert
@@ -1342,7 +1402,11 @@ sub find_elements {
     Required:
         Selenium::Remote::WebElement - WebElement object from where you want to
                                        start searching.
-        STRING - The search target.
+        STRING - The search target. (Do not use a double whack('//')
+                 in an xpath to search for a child element
+                 ex: '//option[@id="something"]'
+                 instead use a dot whack ('./')
+                 ex: './option[@id="something"]')
     Optional:
         STRING - Locator scheme to use to search the element, available schemes:
                  {class, class_name, css, id, link, link_text, partial_link_text,
@@ -1354,7 +1418,8 @@ sub find_elements {
     
  Usage:
     my $elem1 = $driver->find_element("//select[\@name='ned']");
-    my $child = $driver->find_child_element($elem1, "//option[\@value='es_ar']");
+    # note the usage of ./ when searching for a child element instead of //
+    my $child = $driver->find_child_element($elem1, "./option[\@value='es_ar']");
 
 =cut
 

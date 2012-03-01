@@ -16,6 +16,10 @@ sub new {
                           'method' => 'POST',
                           'url'    => 'session'
         },
+        'getSessions' => {
+                          'method' => 'GET',
+                          'url'    => 'sessions'
+        },
         'getCapabilities' => {
                           'method' => 'GET',
                           'url'    => 'session/:sessionId'
@@ -163,6 +167,10 @@ sub new {
         'sendKeysToElement' => {
                'method' => 'POST',
                'url' => "session/:sessionId/element/:id/value"
+        },
+        'sendKeysToActiveElement' => {
+               'method' => 'POST',
+               'url' => "session/:sessionId/keys"
         },
         'sendModifier' => {
                'method' => 'POST',
