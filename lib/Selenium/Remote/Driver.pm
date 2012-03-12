@@ -23,7 +23,7 @@ use constant FINDERS => {
       xpath             => 'xpath',
 };
 
-our $VERSION = "0.14";
+our $VERSION = "0.15";
 
 =head1 NAME
 
@@ -101,7 +101,7 @@ created when you use the find_* methods.
     Constructor for Driver. It'll instantiate the object if it can communicate
     with the Selenium RC server.
 
- Input: 7 (all optional)
+ Input: (all optional)
     desired_capabilities - HASH - Following options are accepted:
       Optional:
         'remote_server_addr' - <string> - IP or FQDN of the RC server machine
@@ -111,10 +111,22 @@ created when you use the find_* methods.
         'platform' - <string> - desired platform:
                                 {WINDOWS|XP|VISTA|MAC|LINUX|UNIX|ANY}
         'javascript' - <boolean> - whether javascript should be supported
+        'accept_ssl_certs' - <boolean> - whether SSL certs should be accepted, default is true.
         'auto_close' - <boolean> - whether driver should end session on remote
                                    server on close.
         'extra_capabilities' - HASH of extra capabilities
-
+        'proxy' - HASH - Proxy configuration with the following keys:
+            'proxyType' - <string> - REQUIRED, Possible values are:
+                direct - A direct connection - no proxy in use,
+                manual - Manual proxy settings configured, e.g. setting a proxy for HTTP, a proxy for FTP, etc,
+                pac - Proxy autoconfiguration from a URL,
+                autodetect - proxy autodetection, probably with WPAD,
+                system - Use system settings
+            'proxyAutoconfigUrl' - <string> - REQUIRED if proxyType is 'pac', ignored otherwise. Expected format: http://hostname.com:1234/pacfile.
+            'ftpProxy' - <string> - OPTIONAL, ignored if proxyType is not 'manual'. Expected format: hostname.com:1234
+            'httpProxy' - <string> - OPTIONAL, ignored if proxyType is not 'manual'. Expected format: hostname.com:1234
+            'sslProxy' - <string> - OPTIONAL, ignored if proxyType is not 'manual'. Expected format: hostname.com:1234
+            
         If no values are provided, then these defaults will be assumed:
             'remote_server_addr' => 'localhost'
             'port'         => '4444'
@@ -142,6 +154,9 @@ created when you use the find_* methods.
                                               'platform'           => 'VISTA',
                                               'extra_capabilities' => {'chrome.switches' => ["--user-data-dir=$ENV{LOCALAPPDATA}\\Google\\Chrome\\User Data"],},
                                               );
+    or
+    my $driver = Selenium::Remote::Driver->new('proxy' => {'proxyType' => 'manual', 'httpProxy' => 'myproxy.com:1234'});
+    
 =cut
 
 sub new {
@@ -162,7 +177,8 @@ sub new {
         pid                => $$,
     };
     bless $self, $class or die "Can't bless $class: $!";
-
+    
+    # check for javascript 
     if ( defined $args{javascript} ) {
         if ( $args{javascript} ) {
             $self->{javascript} = JSON::true;
@@ -173,6 +189,31 @@ sub new {
     }
     else {
         $self->{javascript} = JSON::true;
+    }
+    
+    # check for acceptSslCerts
+    if ( defined $args{accept_ssl_certs} ) {
+        if ( $args{accept_ssl_certs} ) {
+            $self->{accept_ssl_certs} = JSON::true;
+        }
+        else {
+            $self->{accept_ssl_certs} = JSON::false;
+        }
+    }
+    else {
+        $self->{accept_ssl_certs} = JSON::true;
+    }
+    
+    # check for proxy
+    if ( defined $args{proxy} ) {
+        if ($args{proxy}{proxyType} eq 'pac') {
+            if (not defined $args{proxy}{proxyAutoconfigUrl}) {
+                croak "proxyAutoconfigUrl not provided\n";
+            } elsif (not ($args{proxy}{proxyAutoconfigUrl} =~ /^http/g)) {
+                croak "proxyAutoconfigUrl should be of format http://";
+            }
+        }
+        $self->{proxy} = $args{proxy};
     }
 
     # Connect to remote server & establish a new session
@@ -215,6 +256,8 @@ sub _execute_command {
                    if(ref($resp->{cmd_return}) eq 'HASH') {
                      $msg .= ": $resp->{cmd_return}->{error}->{msg}"
                        if $resp->{cmd_return}->{error}->{msg};
+                     $msg .= ": $resp->{cmd_return}->{message}"
+                       if $resp->{cmd_return}->{message};
                    } else {
                      $msg .= ": $resp->{cmd_return}";
                    }
@@ -240,6 +283,8 @@ sub new_session {
             'platform'          => $self->{platform},
             'javascriptEnabled' => $self->{javascript},
             'version'           => $self->{version},
+            'acceptSslCerts'    => $self->{accept_ssl_certs},
+            'proxy'             => $self->{proxy},
             %$extra_capabilities,
         },
     };
@@ -480,7 +525,7 @@ sub get_capabilities {
     return $self->_execute_command($res);
 }
 
-=head2 set_timeout
+=head2 set_async_script_timeout
 
  Description:
     Set the amount of time, in milliseconds, that asynchronous scripts executed
@@ -920,17 +965,39 @@ sub execute_script {
         my $params = {'script' => $script, 'args' => [@args]};
         my $ret = $self->_execute_command($res, $params);
         
-        # replace any ELEMENTS with WebElement
-        if (ref($ret) and (ref($ret) eq 'HASH') and exists $ret->{'ELEMENT'}) {
-            $ret =
-                new Selenium::Remote::WebElement(
-                                        $ret->{ELEMENT}, $self);
-        }
-        return $ret;
+        return $self->_convert_to_webelement($ret);
     }
     else {
         croak 'Javascript is not enabled on remote driver instance.';
     }
+}
+
+# _convert_to_webelement
+# An internal method used to traverse a data structure
+# and convert any ELEMENTS with WebElements
+
+sub _convert_to_webelement {
+    my ($self, $ret ) = @_;
+
+    if (ref($ret) and (ref($ret) eq 'HASH')) {
+        if((keys %$ret==1) and exists $ret->{'ELEMENT'}) {
+            # replace an ELEMENT with WebElement
+            return new Selenium::Remote::WebElement($ret->{ELEMENT}, $self);
+        }
+
+        my %hash;
+        foreach my $key (keys %$ret) {
+            $hash{$key}=$self->_convert_to_webelement($ret->{$key});
+        }
+        return \%hash;
+    }
+
+    if(ref($ret) and (ref($ret) eq 'ARRAY')) {
+        my @array = map {$self->_convert_to_webelement($_)} @$ret;
+        return \@array;
+    }
+
+    return $ret;
 }
 
 =head2 screenshot
@@ -1694,6 +1761,9 @@ __END__
 
 For more information about Selenium , visit the website at
 L<http://code.google.com/p/selenium/>.
+
+Also checkout project's wiki page at
+L<https://github.com/aivaturi/Selenium-Remote-Driver/wiki>.
 
 =head1 BUGS
 
