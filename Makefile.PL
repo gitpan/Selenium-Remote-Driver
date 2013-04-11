@@ -1,28 +1,60 @@
-use inc::Module::Install;
 
-name     'Selenium-Remote-Driver';
-all_from 'lib/Selenium/Remote/Driver.pm';
-author   q{"Aditya Ivaturi" <"ivaturi@gmail.com">};
-license  'apache';
+use strict;
+use warnings;
 
-build_requires 'LWP::Protocol::PSGI';
-build_requires 'Test::More';
-requires 'LWP::UserAgent';
-requires 'HTTP::Headers';
-requires 'HTTP::Request';
-requires 'Carp';
-test_requires 'Carp' => '1.25';
-requires 'JSON';
-requires 'Net::Ping';
 
-resources 'bugtracker' => 'https://github.com/aivaturi/Selenium-Remote-Driver/issues';
-resources 'repository' => {
-    type => 'git',
-    url => 'git://github.com/aivaturi/Selenium-Remote-Driver.git',
-    web => 'https://github.com/aivaturi/Selenium-Remote-Driver',
-};
 
-auto_install;
+use ExtUtils::MakeMaker 6.30;
 
-WriteAll;
+
+
+my %WriteMakefileArgs = (
+  "ABSTRACT" => "Perl Client for Selenium Remote Driver",
+  "AUTHOR" => "Aditya Ivaturi <ivaturi\@gmail.com>",
+  "BUILD_REQUIRES" => {
+    "Carp" => "1.25",
+    "LWP::Protocol::PSGI" => 0,
+    "Test::More" => 0
+  },
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30"
+  },
+  "DISTNAME" => "Selenium-Remote-Driver",
+  "EXE_FILES" => [],
+  "LICENSE" => "apache",
+  "NAME" => "Selenium::Remote::Driver",
+  "PREREQ_PM" => {
+    "Carp" => 0,
+    "HTTP::Headers" => 0,
+    "HTTP::Request" => 0,
+    "JSON" => 0,
+    "LWP::UserAgent" => 0,
+    "Net::Ping" => 0
+  },
+  "VERSION" => "0.16",
+  "test" => {
+    "TESTS" => "t/*.t"
+  }
+);
+
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
+  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
+  my $pp = $WriteMakefileArgs{PREREQ_PM};
+  for my $mod ( keys %$br ) {
+    if ( exists $pp->{$mod} ) {
+      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
+    }
+    else {
+      $pp->{$mod} = $br->{$mod};
+    }
+  }
+}
+
+delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+
+WriteMakefile(%WriteMakefileArgs);
+
+
 

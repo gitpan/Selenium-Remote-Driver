@@ -1,4 +1,7 @@
 package Selenium::Remote::Driver;
+{
+  $Selenium::Remote::Driver::VERSION = '0.16';
+}
 
 use strict;
 use warnings;
@@ -23,11 +26,13 @@ use constant FINDERS => {
       xpath             => 'xpath',
 };
 
-our $VERSION = "0.15";
-
 =head1 NAME
 
 Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
+
+=head1 VERSION
+
+version 0.16
 
 =cut
 
@@ -298,6 +303,38 @@ sub new_session {
     else {
         croak "Could not create new session";
     }
+}
+
+=head2 debug_on
+
+  Description:
+    Turns on debugging mode and the driver will print extra info like request
+    and response to stdout. Useful, when you want to see what is being sent to
+    the server & what response you are getting back.
+
+  Usage:
+    $driver->debug_on;
+
+=cut
+
+sub debug_on {
+    my ($self) = @_;
+    $self->{'remote_conn'}->{'debug'} = 1;
+}
+
+=head2 debug_off
+
+  Description:
+    Turns off the debugging mode.
+
+  Usage:
+    $driver->debug_off;
+
+=cut
+
+sub debug_off {
+    my ($self) = @_;
+    $self->{'remote_conn'}->{'debug'} = 0;
 }
 
 =head2 get_sessions
@@ -1049,25 +1086,34 @@ sub available_engines {
 
  Description:
     Change focus to another frame on the page. If the frame ID is null, the
-    server will switch to the page's default content.
+    server will switch to the page's default content. You can also switch to a
+    WebElement, for e.g. you can find an iframe using find_element & then
+    provide that as an input to this method. Also see e.g. 
 
  Input: 1
     Required:
-        {STRING | NUMBER | NULL} - ID of the frame which can be one of the three
+        {STRING | NUMBER | NULL | WebElement} - ID of the frame which can be one of the three
                                    mentioned.
 
  Usage:
     $driver->switch_to_frame('frame_1');
+    or
+    $driver->switch_to_frame($driver->find_element('iframe', 'tag_name'));
 
 =cut
 
 sub switch_to_frame {
     my ( $self, $id ) = @_;
     my $json_null = JSON::null;
+    my $params;
     $id = ( defined $id ) ? $id : $json_null;
 
     my $res    = { 'command' => 'switchToFrame' };
-    my $params = { 'id'      => $id };
+    if (ref $id eq 'Selenium::Remote::WebElement') {
+        $params = { 'id' => {'ELEMENT' => $id->{'id'}}};
+    } else {
+        $params = { 'id'      => $id };
+    }
     return $self->_execute_command( $res, $params );
 }
 
@@ -1696,7 +1742,7 @@ sub click {
   }
   my $res = { 'command' => 'click' };
   my $params = { 'button' => $button };
-  return $self->_execute_command($res,$button);
+  return $self->_execute_command($res,$params);
 }
 
 =head2 double_click

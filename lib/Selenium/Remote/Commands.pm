@@ -1,4 +1,7 @@
 package Selenium::Remote::Commands;
+{
+  $Selenium::Remote::Commands::VERSION = '0.16';
+}
 
 use strict;
 use warnings;

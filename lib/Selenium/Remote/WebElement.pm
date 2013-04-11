@@ -1,4 +1,7 @@
 package Selenium::Remote::WebElement;
+{
+  $Selenium::Remote::WebElement::VERSION = '0.16';
+}
 
 use strict;
 use warnings;
@@ -6,6 +9,10 @@ use warnings;
 =head1 NAME
 
 Selenium::Remote::WebElement - Representation of an HTML Element used by Selenium Remote Driver
+
+=head1 VERSION
+
+version 0.16
 
 =cut
 
@@ -100,6 +107,7 @@ sub submit {
 sub send_keys {
     my ($self, @strings) = @_;
     my $res = { 'command' => 'sendKeysToElement', 'id' => $self->{id} };
+    map { $_ .= "" } @strings;
     my $params = {
         'value' => \@strings,
     };

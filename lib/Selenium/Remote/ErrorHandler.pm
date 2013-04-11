@@ -1,4 +1,7 @@
 package Selenium::Remote::ErrorHandler;
+{
+  $Selenium::Remote::ErrorHandler::VERSION = '0.16';
+}
 
 use strict;
 use warnings;

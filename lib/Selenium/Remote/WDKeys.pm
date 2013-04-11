@@ -1,4 +1,24 @@
 package Selenium::Remote::WDKeys;
+{
+  $Selenium::Remote::WDKeys::VERSION = '0.16';
+}
+
+=head1 NAME
+
+Selenium::Remote::WDKeys - Representation of keystrokes used by Selenium::Remote::WebDriver
+
+=head1 VERSION
+
+version 0.16
+
+=cut
+
+=head1 DESCRIPTION
+
+The constant KEYS is defined here.
+
+=cut
+
 
 use strict;
 use warnings;

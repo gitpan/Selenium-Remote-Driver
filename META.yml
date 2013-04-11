@@ -1,0 +1,28 @@
+---
+abstract: 'Perl Client for Selenium Remote Driver'
+author:
+  - 'Aditya Ivaturi <ivaturi@gmail.com>'
+build_requires:
+  Carp: 1.25
+  LWP::Protocol::PSGI: 0
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300005, CPAN::Meta::Converter version 2.112621'
+license: apache
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Selenium-Remote-Driver
+requires:
+  Carp: 0
+  HTTP::Headers: 0
+  HTTP::Request: 0
+  JSON: 0
+  LWP::UserAgent: 0
+  Net::Ping: 0
+resources:
+  bugtracker: https://github.com/aivaturi/Selenium-Remote-Driver/issues
+  repository: git://github.com/aivaturi/Selenium-Remote-Driver.git
+version: 0.16
