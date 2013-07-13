@@ -1,13 +1,17 @@
 package Selenium::Remote::Driver;
 {
-  $Selenium::Remote::Driver::VERSION = '0.16';
+  $Selenium::Remote::Driver::VERSION = '0.17';
 }
 
 use strict;
 use warnings;
+use 5.006; use v5.10.0; # See http://perldoc.perl.org/5.10.0/functions/use.html#use-VERSION
 
 use Carp;
 our @CARP_NOT;
+
+use MIME::Base64;
+use IO::Compress::Zip qw(zip $ZipError) ;
 
 use Selenium::Remote::RemoteConnection;
 use Selenium::Remote::Commands;
@@ -32,7 +36,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =cut
 
@@ -131,7 +135,8 @@ created when you use the find_* methods.
             'ftpProxy' - <string> - OPTIONAL, ignored if proxyType is not 'manual'. Expected format: hostname.com:1234
             'httpProxy' - <string> - OPTIONAL, ignored if proxyType is not 'manual'. Expected format: hostname.com:1234
             'sslProxy' - <string> - OPTIONAL, ignored if proxyType is not 'manual'. Expected format: hostname.com:1234
-            
+
+
         If no values are provided, then these defaults will be assumed:
             'remote_server_addr' => 'localhost'
             'port'         => '4444'
@@ -157,11 +162,13 @@ created when you use the find_* methods.
     or
     my $driver = new Selenium::Remote::Driver('browser_name'       => 'chrome',
                                               'platform'           => 'VISTA',
-                                              'extra_capabilities' => {'chrome.switches' => ["--user-data-dir=$ENV{LOCALAPPDATA}\\Google\\Chrome\\User Data"],},
+                                              'extra_capabilities' => {'chrome.switches' => ["--user-data-dir=$ENV{LOCALAPPDATA}\\Google\\Chrome\\User Data"],
+                                              							'chrome.prefs' => {'download.default_directory' =>'/home/user/tmp', 'download.prompt_for_download' =>1 }
+                                              							},
                                               );
     or
     my $driver = Selenium::Remote::Driver->new('proxy' => {'proxyType' => 'manual', 'httpProxy' => 'myproxy.com:1234'});
-    
+
 =cut
 
 sub new {
@@ -182,8 +189,8 @@ sub new {
         pid                => $$,
     };
     bless $self, $class or die "Can't bless $class: $!";
-    
-    # check for javascript 
+
+    # check for javascript
     if ( defined $args{javascript} ) {
         if ( $args{javascript} ) {
             $self->{javascript} = JSON::true;
@@ -195,7 +202,7 @@ sub new {
     else {
         $self->{javascript} = JSON::true;
     }
-    
+
     # check for acceptSslCerts
     if ( defined $args{accept_ssl_certs} ) {
         if ( $args{accept_ssl_certs} ) {
@@ -208,7 +215,7 @@ sub new {
     else {
         $self->{accept_ssl_certs} = JSON::true;
     }
-    
+
     # check for proxy
     if ( defined $args{proxy} ) {
         if ($args{proxy}{proxyType} eq 'pac') {
@@ -251,13 +258,13 @@ sub _execute_command {
         my $resp = $self->{remote_conn}
           ->request( $resource->{'method'}, $resource->{'url'}, $params );
         if(ref($resp) eq 'HASH') {
-            if($resp->{cmd_status} eq 'OK') {
+            if($resp->{cmd_status} && $resp->{cmd_status} eq 'OK') {
                return $resp->{cmd_return};
             } else {
                my $msg = "Error while executing command";
                if($resp->{cmd_error}) {
                  $msg .= ": $resp->{cmd_error}" if $resp->{cmd_error};
-               } else {
+               } elsif ($resp->{cmd_return}) {
                    if(ref($resp->{cmd_return}) eq 'HASH') {
                      $msg .= ": $resp->{cmd_return}->{error}->{msg}"
                        if $resp->{cmd_return}->{error}->{msg};
@@ -289,10 +296,14 @@ sub new_session {
             'javascriptEnabled' => $self->{javascript},
             'version'           => $self->{version},
             'acceptSslCerts'    => $self->{accept_ssl_certs},
-            'proxy'             => $self->{proxy},
             %$extra_capabilities,
         },
     };
+
+    if (defined $self->{proxy}) {
+        $args->{desiredCapabilities}->{proxy} = $self->{proxy};
+    }
+
     my $resp =
       $self->{remote_conn}
       ->request( $self->{commands}->{'newSession'}->{'method'},
@@ -301,7 +312,9 @@ sub new_session {
         $self->{session_id} = $resp->{'sessionId'};
     }
     else {
-        croak "Could not create new session";
+        my $error = 'Could not create new session';
+        $error .= ": $resp->{cmd_return}" if defined $resp->{cmd_return};
+        croak $error;
     }
 }
 
@@ -342,7 +355,7 @@ sub debug_off {
   Description:
     Returns a list of the currently active sessions. Each session will be
     returned as an array of Hashes with the following keys:
-    
+
     'id' : The session ID
     'capabilities: An object describing session's capabilities
 
@@ -414,9 +427,9 @@ sub get_alert_text {
  Usage:
     $driver->send_keys_to_active_element('abcd', 'efg');
     $driver->send_keys_to_active_element('hijk');
-    
+
     or
-    
+
     # include the WDKeys module
     use Selenium::Remote::WDKeys;
     .
@@ -514,7 +527,7 @@ sub dismiss_alert {
     it will be scrolled into view.
 
  Output:
-    STRING - 
+    STRING -
 
  Usage:
     # element - the element to move to. If not specified or is null, the offset is relative to current position of the mouse.
@@ -562,13 +575,44 @@ sub get_capabilities {
     return $self->_execute_command($res);
 }
 
+=head2 set_timeout
+
+ Description:
+    Configure the amount of time that a particular type of operation can execute
+    for before they are aborted and a |Timeout| error is returned to the client.
+
+ Input:
+    type - <STRING> - The type of operation to set the timeout for.
+                      Valid values are:
+                      "script"    : for script timeouts,
+                      "implicit"  : for modifying the implicit wait timeout
+                      "page load" : for setting a page load timeout.
+    ms - <NUMBER> - The amount of time, in milliseconds, that time-limited
+            commands are permitted to run.
+
+ Usage:
+    $driver->set_timeout('script', 1000);
+
+=cut
+
+sub set_timeout {
+    my ($self, $type, $ms) = @_;
+    if (not defined $type or not defined $ms)
+    {
+        return "Expecting type & timeour in ms";
+    }
+    my $res = {'command' => 'setTimeout'};
+    my $params = {'type' => $type, 'ms' => $ms};
+    return $self->_execute_command($res, $params);
+}
+
 =head2 set_async_script_timeout
 
  Description:
     Set the amount of time, in milliseconds, that asynchronous scripts executed
     by execute_async_script() are permitted to run before they are
     aborted and a |Timeout| error is returned to the client.
- 
+
  Input:
     ms - <NUMBER> - The amount of time, in milliseconds, that time-limited
             commands are permitted to run.
@@ -599,7 +643,7 @@ sub set_async_script_timeout {
     at least one element is found or the timeout expires, at which point it
     will return an empty list. If this method is never called, the driver will
     default to an implicit wait of 0ms.
- 
+
  Input:
     Time in milliseconds.
 
@@ -705,7 +749,7 @@ sub get_window_handles {
 
  Description:
     Retrieve the window size
- 
+
  Input:
     STRING - <optional> - window handle (default is 'current' window)
 
@@ -729,7 +773,7 @@ sub get_window_size {
 
  Description:
     Retrieve the window position
- 
+
  Input:
     STRING - <optional> - window handle (default is 'current' window)
 
@@ -772,7 +816,7 @@ sub get_current_url {
 
  Description:
     Navigate to a given url. This is same as get() method.
-    
+
  Input:
     STRING - url
 
@@ -790,7 +834,7 @@ sub navigate {
 
  Description:
     Navigate to a given url
-    
+
  Input:
     STRING - url
 
@@ -990,7 +1034,7 @@ sub execute_script {
             return 'No script provided';
         }
         my $res  = { 'command'    => 'executeScript' };
-        
+
         # Check the args array if the elem obj is provided & replace it with
         # JSON representation
         for (my $i=0; $i<@args; $i++) {
@@ -998,10 +1042,10 @@ sub execute_script {
                 $args[$i] = {'ELEMENT' => ($args[$i])->{id}};
             }
         }
-        
+
         my $params = {'script' => $script, 'args' => [@args]};
         my $ret = $self->_execute_command($res, $params);
-        
+
         return $self->_convert_to_webelement($ret);
     }
     else {
@@ -1088,7 +1132,7 @@ sub available_engines {
     Change focus to another frame on the page. If the frame ID is null, the
     server will switch to the page's default content. You can also switch to a
     WebElement, for e.g. you can find an iframe using find_element & then
-    provide that as an input to this method. Also see e.g. 
+    provide that as an input to this method. Also see e.g.
 
  Input: 1
     Required:
@@ -1238,7 +1282,7 @@ sub set_window_position {
     INT - height of the window
     INT - width of the window
     STRING - <optional> - window handle (default is 'current' window)
- 
+
  Output:
     BOOLEAN - Success or failure
 
@@ -1267,7 +1311,7 @@ sub set_window_size {
  Description:
     Retrieve all cookies visible to the current page. Each cookie will be
     returned as a HASH reference with the following keys & their value types:
-    
+
     'name' - STRING
     'value' - STRING
     'path' - STRING
@@ -1321,7 +1365,7 @@ sub add_cookie {
     my $res        = { 'command' => 'addCookie' };
     my $json_false = JSON::false;
     my $json_true  = JSON::true;
-    $secure = ( defined $secure ) ? $json_true : $json_false;
+    $secure = ( defined $secure && $secure ) ? $json_true : $json_false;
 
     my $params = {
         'cookie' => {
@@ -1412,7 +1456,7 @@ sub get_page_source {
 
  Output:
     Selenium::Remote::WebElement - WebElement Object
-    
+
  Usage:
     $driver->find_element("//input[\@name='q']");
 
@@ -1464,7 +1508,7 @@ sub find_element {
 
  Output:
     ARRAY of Selenium::Remote::WebElement - Array of WebElement Objects
-    
+
  Usage:
     $driver->find_elements("//input");
 
@@ -1528,7 +1572,7 @@ sub find_elements {
 
  Output:
     Selenium::Remote::WebElement - WebElement Object
-    
+
  Usage:
     my $elem1 = $driver->find_element("//select[\@name='ned']");
     # note the usage of ./ when searching for a child element instead of //
@@ -1585,7 +1629,7 @@ sub find_child_element {
 
  Output:
     ARRAY of Selenium::Remote::WebElement - Array of WebElement Objects.
-    
+
  Usage:
     my $elem1 = $driver->find_element("//select[\@name='ned']");
     my $child = $driver->find_child_elements($elem1, "//option");
@@ -1635,7 +1679,7 @@ sub find_child_elements {
 
  Output:
     Selenium::Remote::WebElement - WebElement Object
-    
+
  Usage:
     $driver->get_active_element();
 
@@ -1698,7 +1742,7 @@ sub send_modifier {
 
  Output:
     BOOLEAN
-    
+
  Usage:
     $driver->compare_elements($elem_obj1, $elem_obj2);
 
@@ -1799,6 +1843,36 @@ sub button_up {
   return $self->_execute_command($res);
 }
 
+=head2 upload_file
+
+ Description:
+    Upload a file from the local machine to the selenium server
+    machine. That file then can be used for testing file upload on web
+    forms. Returns the remote-server's path to the file.
+
+ Usage:
+    my $remote_fname = $driver->upload_file( $fname );
+    my $element = $driver->find_element( '//input[@id="file"]' );
+    $element->send_keys( $remote_fname );
+
+=cut
+
+# this method duplicates upload() method in the
+# org.openqa.selenium.remote.RemoteWebElement java class.
+
+sub upload_file {
+    my ($self, $filename) = @_;
+    if (not -r $filename) { die "upload_file: no such file: $filename"; }
+    my $string = "";                         # buffer
+    zip $filename => \$string
+        or die "zip failed: $ZipError\n";    # compress the file into string
+    my $res = { 'command' => 'uploadFile' }; # /session/:SessionId/file
+    my $params = {
+        file => encode_base64($string)       # base64-encoded string
+    };
+    return $self->_execute_command($res, $params);
+}
+
 1;
 
 __END__
@@ -1826,13 +1900,15 @@ The following people have contributed to this module. (Thanks!)
 
 =over 4
 
+=item * Allen Lew
+
+=item * Charles Howes
+
 =item * Gordon Child
 
 =item * Phil Kania
 
 =item * Phil Mitchell
-
-=item * Allen Lew
 
 =item * Tom Hukins
 

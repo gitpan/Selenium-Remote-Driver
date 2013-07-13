@@ -1,6 +1,6 @@
 package Selenium::Remote::WDKeys;
 {
-  $Selenium::Remote::WDKeys::VERSION = '0.16';
+  $Selenium::Remote::WDKeys::VERSION = '0.17';
 }
 
 =head1 NAME
@@ -9,7 +9,7 @@ Selenium::Remote::WDKeys - Representation of keystrokes used by Selenium::Remote
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =cut
 

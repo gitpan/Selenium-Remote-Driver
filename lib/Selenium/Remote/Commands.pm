@@ -1,6 +1,6 @@
 package Selenium::Remote::Commands;
 {
-  $Selenium::Remote::Commands::VERSION = '0.16';
+  $Selenium::Remote::Commands::VERSION = '0.17';
 }
 
 use strict;
@@ -284,6 +284,10 @@ sub new {
                'method' => 'POST',
                'url'    => 'session/:sessionId/buttonup'
         },
+        'uploadFile' => {
+               'method' => 'POST',
+               'url'    => 'session/:sessionId/file'
+        },
         #'setVisible' => {
         #               'method' => 'POST',
         #               'url' => "session/:sessionId/visible"
@@ -326,6 +330,16 @@ sub get_params {
 
 __END__
 
+=pod
+
+=head1 NAME
+
+Selenium::Remote::Commands - Implement commands for Selenium::Remote::Driver
+
+=head1 VERSION
+
+version 0.17
+
 =head1 SEE ALSO
 
 For more information about Selenium , visit the website at
@@ -338,7 +352,7 @@ L<http://github.com/aivaturi/Selenium-Remote-Driver/issues>.
 
 =head1 CURRENT MAINTAINER
 
-Gordon Child C<< <gchild@gordonchild.com> >>
+Charles Howes C<< <chowes@cpan.org> >>
 
 =head1 AUTHOR
 

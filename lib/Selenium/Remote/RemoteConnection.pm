@@ -1,6 +1,6 @@
 package Selenium::Remote::RemoteConnection;
 {
-  $Selenium::Remote::RemoteConnection::VERSION = '0.16';
+  $Selenium::Remote::RemoteConnection::VERSION = '0.17';
 }
 
 use strict;
@@ -95,10 +95,10 @@ sub _process_response {
         my $decoded_json = undef;
         print "RES: ".$response->decoded_content."\n\n" if $self->{debug};
         if (($response->message ne 'No Content') && ($response->content ne '')) {
-	    if ($response->content =~ m/^<html>/i) {
-		$data->{'cmd_return'} = 'Server returned error message '.$response->content.' instead of data';
-		return $data;
-	    }
+            if ($response->content_type !~ m/json/i) {
+                $data->{'cmd_return'} = 'Server returned error message '.$response->content.' instead of data';
+                return $data;
+            }
             $decoded_json = $json->allow_nonref(1)->utf8(1)->decode($response->content);
             $data->{'sessionId'} = $decoded_json->{'sessionId'};
         }
@@ -138,9 +138,19 @@ sub _process_response {
 
 __END__
 
+=pod
+
+=head1 NAME
+
+Selenium::Remote::RemoteConnection - Connect to a selenium server
+
+=head1 VERSION
+
+version 0.17
+
 =head1 SEE ALSO
 
-For more information about Selenium , visit the website at
+For more information about Selenium, visit the website at
 L<http://code.google.com/p/selenium/>.
 
 =head1 BUGS
@@ -150,7 +160,7 @@ L<http://github.com/aivaturi/Selenium-Remote-Driver/issues>.
 
 =head1 CURRENT MAINTAINER
 
-Gordon Child C<< <gchild@gordonchild.com> >>
+Charles Howes C<< <chowes@cpan.org> >>
 
 =head1 AUTHOR
 

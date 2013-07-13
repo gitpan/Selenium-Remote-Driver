@@ -4,7 +4,7 @@
       "Aditya Ivaturi <ivaturi@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300005, CPAN::Meta::Converter version 2.112621",
+   "generated_by" : "Dist::Zilla version 4.300023, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "apache_2_0"
    ],
@@ -16,8 +16,8 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "LWP::Protocol::PSGI" : 0,
-            "Test::More" : 0
+            "LWP::Protocol::PSGI" : "0",
+            "Test::More" : "0"
          }
       },
       "configure" : {
@@ -27,12 +27,13 @@
       },
       "runtime" : {
          "requires" : {
-            "Carp" : 0,
-            "HTTP::Headers" : 0,
-            "HTTP::Request" : 0,
-            "JSON" : 0,
-            "LWP::UserAgent" : 0,
-            "Net::Ping" : 0
+            "Carp" : "0",
+            "HTTP::Headers" : "0",
+            "HTTP::Request" : "0",
+            "JSON" : "0",
+            "LWP::UserAgent" : "0",
+            "Net::Ping" : "0",
+            "perl" : "5.010"
          }
       },
       "test" : {
@@ -52,6 +53,6 @@
          "web" : "https://github.com/aivaturi/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.16"
+   "version" : "0.17"
 }
 

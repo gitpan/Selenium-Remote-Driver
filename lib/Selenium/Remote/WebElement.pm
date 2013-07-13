@@ -1,6 +1,6 @@
 package Selenium::Remote::WebElement;
 {
-  $Selenium::Remote::WebElement::VERSION = '0.16';
+  $Selenium::Remote::WebElement::VERSION = '0.17';
 }
 
 use strict;
@@ -12,7 +12,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =cut
 
@@ -481,7 +481,7 @@ L<http://github.com/aivaturi/Selenium-Remote-Driver/issues>.
 
 =head1 CURRENT MAINTAINER
 
-Gordon Child C<< <gchild@gordonchild.com> >>
+Charles Howes C<< <chowes@cpan.org> >>
 
 =head1 AUTHOR
 
