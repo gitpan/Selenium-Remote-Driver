@@ -11,7 +11,7 @@ BEGIN {
       BAIL_OUT ("Couldn't load Driver");
       exit;
    }
-   
+
    if (defined $ENV{'WD_MOCKING_RECORD'} && ($ENV{'WD_MOCKING_RECORD'}==1))
    {
       use t::lib::MockSeleniumWebDriver;
@@ -37,16 +37,6 @@ if (!$record && !(-e "t/mock-recordings/$mock_file"))
    plan skip_all => "Mocking of tests is not been enabled for this platform";
 }
 t::lib::MockSeleniumWebDriver::register($record,"t/mock-recordings/$mock_file");
-
-# Start our local http server
-if ($^O eq 'MSWin32' && $record)
-{
-   system("start \"TEMP_HTTP_SERVER\" /MIN perl t/http-server.pl");
-}
-elsif ($record)
-{
-    system("perl t/http-server.pl > /dev/null &");
-}
 
 my $driver = new Selenium::Remote::Driver(browser_name => 'firefox');
 my $website = 'http://localhost:63636';
@@ -74,18 +64,18 @@ INPUT: {
             is($ret, 'id', 'Get attribute @value');
             $ret = $elem->get_tag_name();
             is($ret, 'input', 'Get tag name');
-            
+
             $elem = $driver->find_element('checky', 'id');
             $ret = $elem->is_selected();
-            is($ret, 'false', 'Checkbox not selected');
+            is($ret, 0, 'Checkbox not selected');
             $ret = $elem->click();
             $ret = $elem->is_selected();
-            is($ret, 'true', 'Checkbox is selected');
+            is($ret, 1, 'Checkbox is selected');
             TODO: {
             local $TODO = "toggle doesn't appear to be working currently in selenium server";
             eval {$ret = $elem->toggle();};
             $ret = $elem->is_selected();
-            is($ret, 'false', 'Toggle & Checkbox is selected');
+            is($ret, 0, 'Toggle & Checkbox is selected');
             };
             note "describe return data has not yet been defined";
             ok($elem->describe,"describe returns data");
@@ -135,15 +125,5 @@ QUIT: {
         $ret = $driver->quit();
         ok((not defined $driver->{'session_id'}), 'Killed the remote session');
       }
-
-# Kill our HTTP Server
-if ($^O eq 'MSWin32' && $record)
-{
-   system("taskkill /FI \"WINDOWTITLE eq TEMP_HTTP_SERVER\"");
-}
-elsif ($record)
-{
-    `ps aux | grep http-server\.pl | grep perl | awk '{print \$2}' | xargs kill`;
-}
 
 done_testing;

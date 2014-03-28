@@ -1,10 +1,7 @@
 package Selenium::Remote::WebElement;
-{
-  $Selenium::Remote::WebElement::VERSION = '0.17';
-}
-
-use strict;
-use warnings;
+$Selenium::Remote::WebElement::VERSION = '0.18'; # TRIAL
+use Moo;
+use Carp qw(croak);
 
 =head1 NAME
 
@@ -12,7 +9,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =cut
 
@@ -23,7 +20,7 @@ provides a mechanism to represent them as objects & perform various actions on
 the related elements. This module should not be instantiated directly by the end
 user. Selenium::Remote::Driver instantiates this module when required. Typically,
 the find_element method in Selenium::Remote::Driver returns this object on which
-various element related operations can be carried out. 
+various element related operations can be carried out.
 
 =cut
 
@@ -31,20 +28,16 @@ various element related operations can be carried out.
 
 =cut
 
-sub new {
-    my ($class, $id, $parent) = @_;
-    my $self = {
-        id => $id,
-        driver => $parent,
-    };
-    bless $self, $class or die "Can't bless $class: $!";
-    return $self;
-}
+has 'id' => (
+    is => 'rw',
+);
 
-sub _execute_command {
-    my ($self) = shift;
-    return $self->{driver}->_execute_command(@_);
-}
+has 'driver' => (
+    is => 'rw',
+    handles => [qw(_execute_command)],
+);
+
+
 
 =head2 click
 
@@ -58,7 +51,7 @@ sub _execute_command {
 
 sub click {
     my ($self) = @_;
-    my $res = { 'command' => 'clickElement', 'id' => $self->{id} };
+    my $res = { 'command' => 'clickElement', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -75,7 +68,7 @@ sub click {
 
 sub submit {
     my ($self) = @_;
-    my $res = { 'command' => 'submitElement', 'id' => $self->{id} };
+    my $res = { 'command' => 'submitElement', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -93,9 +86,9 @@ sub submit {
  Usage:
     $elem->send_keys('abcd', 'efg');
     $elem->send_keys('hijk');
-    
+
     or
-    
+
     # include the WDKeys module
     use Selenium::Remote::WDKeys;
     .
@@ -105,13 +98,13 @@ sub submit {
 =cut
 
 sub send_keys {
-    my ($self, @strings) = @_;
-    my $res = { 'command' => 'sendKeysToElement', 'id' => $self->{id} };
+    my ( $self, @strings ) = @_;
+    my $res = { 'command' => 'sendKeysToElement', 'id' => $self->id };
     map { $_ .= "" } @strings;
     my $params = {
         'value' => \@strings,
     };
-    return $self->_execute_command($res, $params);
+    return $self->_execute_command( $res, $params );
 }
 
 =head2 is_selected
@@ -130,14 +123,14 @@ sub send_keys {
 
 sub is_selected {
     my ($self) = @_;
-    my $res = { 'command' => 'isElementSelected', 'id' => $self->{id} };
+    my $res = { 'command' => 'isElementSelected', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
 =head2 set_selected
 
  Description:
-    Select an OPTION element, or an INPUT element of type checkbox or radiobutton. 
+    Select an OPTION element, or an INPUT element of type checkbox or radiobutton.
 
  Usage:
     $elem->set_selected();
@@ -148,7 +141,7 @@ sub is_selected {
 
 sub set_selected {
     my ($self) = @_;
-    my $res = { 'command' => 'setElementSelected', 'id' => $self->{id} };
+    my $res = { 'command' => 'setElementSelected', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -157,7 +150,7 @@ sub set_selected {
  Description:
     Toggle whether an OPTION element, or an INPUT element of type checkbox or
     radiobutton is currently selected.
-    
+
  Output:
     BOOLEAN - Whether the element is selected after toggling its state.
 
@@ -170,7 +163,7 @@ sub set_selected {
 
 sub toggle {
     my ($self) = @_;
-    my $res = { 'command' => 'toggleElement', 'id' => $self->{id} };
+    my $res = { 'command' => 'toggleElement', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -178,7 +171,7 @@ sub toggle {
 
  Description:
     Determine if an element is currently enabled.
-    
+
  Output:
     BOOLEAN - Whether the element is enabled.
 
@@ -189,7 +182,7 @@ sub toggle {
 
 sub is_enabled {
     my ($self) = @_;
-    my $res = { 'command' => 'isElementEnabled', 'id' => $self->{id} };
+    my $res = { 'command' => 'isElementEnabled', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -198,7 +191,7 @@ sub is_enabled {
  Description:
    Determine an element's location on the page. The point (0, 0) refers to the
    upper-left corner of the page.
-    
+
  Output:
     HASH - The X and Y coordinates for the element on the page.
 
@@ -209,7 +202,7 @@ sub is_enabled {
 
 sub get_element_location {
     my ($self) = @_;
-    my $res = { 'command' => 'getElementLocation', 'id' => $self->{id} };
+    my $res = { 'command' => 'getElementLocation', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -218,10 +211,10 @@ sub get_element_location {
  Description:
     Determine an element's location on the screen once it has been scrolled
     into view.
-    
+
     Note: This is considered an internal command and should only be used to
     determine an element's location for correctly generating native events.
-    
+
  Output:
     {x:number, y:number} The X and Y coordinates for the element on the page.
 
@@ -232,7 +225,7 @@ sub get_element_location {
 
 sub get_element_location_in_view {
     my ($self) = @_;
-    my $res = { 'command' => 'getElementLocationInView', 'id' => $self->{id} };
+    my $res = { 'command' => 'getElementLocationInView', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -240,7 +233,7 @@ sub get_element_location_in_view {
 
  Description:
     Query for an element's tag name.
-    
+
  Output:
     STRING - The element's tag name, as a lowercase string.
 
@@ -251,7 +244,7 @@ sub get_element_location_in_view {
 
 sub get_tag_name {
     my ($self) = @_;
-    my $res = { 'command' => 'getElementTagName', 'id' => $self->{id} };
+    my $res = { 'command' => 'getElementTagName', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -259,7 +252,7 @@ sub get_tag_name {
 
  Description:
     Clear a TEXTAREA or text INPUT element's value.
-    
+
  Usage:
     $elem->clear();
 
@@ -267,7 +260,7 @@ sub get_tag_name {
 
 sub clear {
     my ($self) = @_;
-    my $res = { 'command' => 'clearElement', 'id' => $self->{id} };
+    my $res = { 'command' => 'clearElement', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -279,7 +272,7 @@ sub clear {
  Input: 1
     Required:
         STRING - name of the attribute of the element
-    
+
  Output:
     {STRING | NULL} The value of the attribute, or null if it is not set on the element.
 
@@ -289,14 +282,15 @@ sub clear {
 =cut
 
 sub get_attribute {
-    my ($self, $attr_name) = @_;
-    if (not defined $attr_name) {
-        return 'Attribute name not provided';
+    my ( $self, $attr_name ) = @_;
+    if ( not defined $attr_name ) {
+        croak 'Attribute name not provided';
     }
-    my $res = {'command' => 'getElementAttribute',
-               'id' => $self->{id},
-               'name' => $attr_name,
-               };
+    my $res = {
+        'command' => 'getElementAttribute',
+        'id'      => $self->id,
+        'name'    => $attr_name,
+    };
     return $self->_execute_command($res);
 }
 
@@ -322,7 +316,7 @@ sub get_value {
 
  Description:
     Determine if an element is currently displayed.
-    
+
  Output:
     BOOLEAN - Whether the element is displayed.
 
@@ -333,7 +327,7 @@ sub get_value {
 
 sub is_displayed {
     my ($self) = @_;
-    my $res = { 'command' => 'isElementDisplayed', 'id' => $self->{id} };
+    my $res = { 'command' => 'isElementDisplayed', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -347,23 +341,23 @@ sub is_displayed {
     Required:
         NUMBER - X axis distance in pixels
         NUMBER - Y axis distance in pixels
-    
+
  Usage:
     $elem->drag(216,158);
 
 =cut
 
 sub drag {
-    my ($self, $x, $y) = @_;
-    if ((not defined $x) || (not defined $y)){
-        return 'X & Y pixel coordinates not provided';
+    my ( $self, $x, $y ) = @_;
+    if ( ( not defined $x ) || ( not defined $y ) ) {
+        croak 'X & Y pixel coordinates not provided';
     }
-    my $res = {'command' => 'dragElement','id' => $self->{id}};
+    my $res = { 'command' => 'dragElement', 'id' => $self->id };
     my $params = {
         'x' => $x,
         'y' => $y,
     };
-    return $self->_execute_command($res, $params);
+    return $self->_execute_command( $res, $params );
 }
 
 =head2 get_size
@@ -374,7 +368,7 @@ sub drag {
 
  Output:
     HASH - The width and height of the element, in pixels.
-    
+
  Usage:
     $elem->get_size();
 
@@ -382,7 +376,7 @@ sub drag {
 
 sub get_size {
     my ($self) = @_;
-    my $res = { 'command' => 'getElementSize', 'id' => $self->{id} };
+    my $res = { 'command' => 'getElementSize', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -393,7 +387,7 @@ sub get_size {
 
  Output:
     STRING - innerText of an element
-    
+
  Usage:
     $elem->get_text();
 
@@ -401,7 +395,7 @@ sub get_size {
 
 sub get_text {
     my ($self) = @_;
-    my $res = { 'command' => 'getElementText', 'id' => $self->{id} };
+    my $res = { 'command' => 'getElementText', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -418,37 +412,22 @@ sub get_text {
 
  Output:
     STRING - Value of the css attribute
-    
+
  Usage:
     $elem->get_css_attribute('background-color');
 
 =cut
 
 sub get_css_attribute {
-    my ($self, $attr_name) = @_;
-    if (not defined $attr_name) {
-        return 'CSS attribute name not provided';
+    my ( $self, $attr_name ) = @_;
+    if ( not defined $attr_name ) {
+        croak 'CSS attribute name not provided';
     }
-    my $res = {'command' => 'getElementValueOfCssProperty',
-               'id' => $self->{id},
-               'property_name' => $attr_name,
-               };
-    return $self->_execute_command($res);
-}
-
-=head2 hover
-
- Description:
-    Move the mouse over an element.
-
- Usage:
-    $elem->hover();
-
-=cut
-
-sub hover {
-    my ($self) = @_;
-    my $res = { 'command' => 'hoverOverElement', 'id' => $self->{id} };
+    my $res = {
+        'command'       => 'getElementValueOfCssProperty',
+        'id'            => $self->id,
+        'property_name' => $attr_name,
+    };
     return $self->_execute_command($res);
 }
 
@@ -461,9 +440,10 @@ sub hover {
     $elem->describe();
 
 =cut
+
 sub describe {
     my ($self) = @_;
-    my $res = { 'command' => 'describeElement', 'id' => $self->{id} };
+    my $res = { 'command' => 'describeElement', 'id' => $self->id };
     return $self->_execute_command($res);
 }
 
@@ -477,11 +457,11 @@ L<http://code.google.com/p/selenium/>.
 =head1 BUGS
 
 The Selenium issue tracking system is available online at
-L<http://github.com/aivaturi/Selenium-Remote-Driver/issues>.
+L<http://github.com/gempesaw/Selenium-Remote-Driver/issues>.
 
 =head1 CURRENT MAINTAINER
 
-Charles Howes C<< <chowes@cpan.org> >>
+Daniel Gempesaw C<< <gempesaw@gmail.com> >>
 
 =head1 AUTHOR
 
@@ -502,3 +482,5 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+480:    hit eof while in pod documentation (no =cut seen)
+        this can cause trouble with some pod utilities

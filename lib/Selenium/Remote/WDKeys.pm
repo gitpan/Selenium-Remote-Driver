@@ -1,15 +1,12 @@
 package Selenium::Remote::WDKeys;
-{
-  $Selenium::Remote::WDKeys::VERSION = '0.17';
-}
-
+$Selenium::Remote::WDKeys::VERSION = '0.18'; # TRIAL
 =head1 NAME
 
 Selenium::Remote::WDKeys - Representation of keystrokes used by Selenium::Remote::WebDriver
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =cut
 
