@@ -4,7 +4,7 @@ MANIFEST
 META.json
 META.yml
 Makefile.PL
-README
+README.md
 TAGS
 dist.ini
 driver-example.pl

@@ -1,5 +1,5 @@
 package Selenium::Remote::ErrorHandler;
-$Selenium::Remote::ErrorHandler::VERSION = '0.18'; # TRIAL
+$Selenium::Remote::ErrorHandler::VERSION = '0.18_01'; # TRIAL
 use Moo;
 use Carp qw(croak);
 
@@ -140,7 +140,7 @@ Selenium::Remote::ErrorHandler - Error handler for Selenium::Remote::Driver
 
 =head1 VERSION
 
-version 0.18
+version 0.18_01
 
 =head1 SEE ALSO
 

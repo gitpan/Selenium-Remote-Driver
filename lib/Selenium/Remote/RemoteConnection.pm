@@ -1,5 +1,5 @@
 package Selenium::Remote::RemoteConnection;
-$Selenium::Remote::RemoteConnection::VERSION = '0.18'; # TRIAL
+$Selenium::Remote::RemoteConnection::VERSION = '0.18_01'; # TRIAL
 use Moo;
 use Try::Tiny;
 use LWP::UserAgent;
@@ -155,7 +155,7 @@ Selenium::Remote::RemoteConnection - Connect to a selenium server
 
 =head1 VERSION
 
-version 0.18
+version 0.18_01
 
 =head1 SEE ALSO
 

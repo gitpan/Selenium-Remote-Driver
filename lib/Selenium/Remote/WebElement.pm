@@ -1,5 +1,5 @@
 package Selenium::Remote::WebElement;
-$Selenium::Remote::WebElement::VERSION = '0.18'; # TRIAL
+$Selenium::Remote::WebElement::VERSION = '0.18_01'; # TRIAL
 use Moo;
 use Carp qw(croak);
 
@@ -9,7 +9,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.18
+version 0.18_01
 
 =cut
 
