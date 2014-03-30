@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver;
-$Selenium::Remote::Driver::VERSION = '0.18_01'; # TRIAL
+$Selenium::Remote::Driver::VERSION = '0.18';
 use Moo;
 use Try::Tiny;
 
@@ -38,7 +38,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.18_01
+version 0.18
 
 =cut
 

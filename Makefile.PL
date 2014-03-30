@@ -11,7 +11,7 @@ use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Perl Client for Selenium Remote Driver",
-  "AUTHOR" => "'Luke Closs <cpan\@5thplane.com>', 'Daniel Gempesaw <gempesaw\@gmail.com>', 'Aditya Ivaturi <ivaturi\@gmail.com>', 'Mark Stosberg <mark\@stosberg.com>'",
+  "AUTHOR" => "'Aditya Ivaturi <ivaturi\@gmail.com>', 'Daniel Gempesaw <gempesaw\@gmail.com>', 'Luke Closs <cpan\@5thplane.com>', 'Mark Stosberg <mark\@stosberg.com>'",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
@@ -54,7 +54,7 @@ my %WriteMakefileArgs = (
     "Test::MockObject::Extends" => 0,
     "Test::Tester" => 0
   },
-  "VERSION" => "0.18_01",
+  "VERSION" => "0.18",
   "test" => {
     "TESTS" => "t/*.t"
   }

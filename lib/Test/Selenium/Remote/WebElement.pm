@@ -1,5 +1,5 @@
 package Test::Selenium::Remote::WebElement;
-$Test::Selenium::Remote::WebElement::VERSION = '0.18_01'; # TRIAL
+$Test::Selenium::Remote::WebElement::VERSION = '0.18';
 use parent 'Selenium::Remote::WebElement';
 use Moo;
 use Test::Builder;
@@ -185,7 +185,7 @@ Test::Selenium::Remote::WebElement
 
 =head1 VERSION
 
-version 0.18_01
+version 0.18
 
 =head1 DESCRIPTION
 

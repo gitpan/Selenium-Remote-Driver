@@ -1,5 +1,5 @@
 package Test::Selenium::Remote::Driver;
-$Test::Selenium::Remote::Driver::VERSION = '0.18_01'; # TRIAL
+$Test::Selenium::Remote::Driver::VERSION = '0.18';
 use strict;
 use warnings;
 use parent  'Selenium::Remote::Driver';
@@ -143,7 +143,7 @@ Test::Selenium::Remote::Driver
 
 =head1 VERSION
 
-version 0.18_01
+version 0.18
 
 =head1 DESCRIPTION
 
