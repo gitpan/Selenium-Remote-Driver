@@ -6,6 +6,7 @@ META.yml
 Makefile.PL
 README.md
 TAGS
+cpanfile
 dist.ini
 driver-example.pl
 ide-plugin.js
@@ -50,5 +51,6 @@ t/www/metakeys.html
 t/www/nestedElements.html
 t/www/popup.html
 t/www/xhtmlTest.html
+weaver.ini
 xt/release/pod-coverage.t
 xt/release/pod-syntax.t
