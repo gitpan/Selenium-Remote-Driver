@@ -1,5 +1,5 @@
 package Test::Selenium::Remote::Driver;
-$Test::Selenium::Remote::Driver::VERSION = '0.19'; # TRIAL
+$Test::Selenium::Remote::Driver::VERSION = '0.19';
 use strict;
 use warnings;
 use parent  'Selenium::Remote::Driver';
