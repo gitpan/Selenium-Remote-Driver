@@ -54,11 +54,12 @@ my %WriteMakefileArgs = (
     "File::stat" => 0,
     "LWP::Protocol::PSGI" => "0.04",
     "LWP::Simple" => 0,
+    "Test::LWP::UserAgent" => 0,
     "Test::MockObject" => 0,
     "Test::MockObject::Extends" => 0,
     "Test::Tester" => 0
   },
-  "VERSION" => "0.19",
+  "VERSION" => "0.1950",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -89,6 +90,7 @@ my %FallbackPrereqs = (
   "Net::Ping" => 0,
   "Scalar::Util" => 0,
   "Test::Builder" => 0,
+  "Test::LWP::UserAgent" => 0,
   "Test::LongString" => 0,
   "Test::MockObject" => 0,
   "Test::MockObject::Extends" => 0,

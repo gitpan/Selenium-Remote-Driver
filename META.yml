@@ -10,6 +10,7 @@ build_requires:
   File::stat: '0'
   LWP::Protocol::PSGI: '0.04'
   LWP::Simple: '0'
+  Test::LWP::UserAgent: '0'
   Test::MockObject: '0'
   Test::MockObject::Extends: '0'
   Test::Tester: '0'
@@ -54,7 +55,7 @@ requires:
 resources:
   bugtracker: https://github.com/gempesaw/Selenium-Remote-Driver/issues
   repository: git://github.com/gempesaw/Selenium-Remote-Driver.git
-version: '0.19'
+version: '0.1950'
 x_contributors:
   - 'Allen Lew <allen@alew.org>'
   - 'Charles Howes <charles.howes@globalrelay.net>'
