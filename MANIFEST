@@ -6,7 +6,6 @@ META.json
 META.yml
 Makefile.PL
 README.md
-Selenium-Remote-Driver-0.1951/.travis.yml
 TAGS
 cpanfile
 dist.ini
@@ -20,6 +19,7 @@ lib/Selenium/Remote/RemoteConnection.pm
 lib/Selenium/Remote/WDKeys.pm
 lib/Selenium/Remote/WebElement.pm
 lib/Test/Selenium/Remote/Driver.pm
+lib/Test/Selenium/Remote/Role/DoesTesting.pm
 lib/Test/Selenium/Remote/WebElement.pm
 t/00-load.t
 t/01-driver.t

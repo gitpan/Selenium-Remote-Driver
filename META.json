@@ -47,15 +47,16 @@
             "LWP::UserAgent" : "0",
             "MIME::Base64" : "0",
             "Moo" : "0",
+            "Moo::Role" : "0",
             "Net::Ping" : "0",
             "Scalar::Util" : "0",
+            "Sub::Install" : "0",
             "Test::Builder" : "0",
             "Test::LongString" : "0",
-            "Test::More" : "0",
             "Try::Tiny" : "0",
             "base" : "0",
             "constant" : "0",
-            "parent" : "0",
+            "namespace::clean" : "0",
             "perl" : "5.010",
             "strict" : "0",
             "warnings" : "0"
@@ -70,6 +71,7 @@
             "Test::LWP::UserAgent" : "0",
             "Test::MockObject" : "0",
             "Test::MockObject::Extends" : "0",
+            "Test::More" : "0",
             "Test::Tester" : "0"
          }
       }
@@ -85,7 +87,7 @@
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.1951",
+   "version" : "0.1952",
    "x_contributors" : [
       "Allen Lew <allen@alew.org>",
       "Charles Howes <charles.howes@globalrelay.net>",
