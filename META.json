@@ -76,7 +76,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver/issues"
@@ -87,7 +87,7 @@
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.1952",
+   "version" : "0.20",
    "x_contributors" : [
       "Allen Lew <allen@alew.org>",
       "Charles Howes <charles.howes@globalrelay.net>",

@@ -1,6 +1,6 @@
 package Test::Selenium::Remote::Driver;
 # ABSTRACT: Useful testing subclass for Selenium::Remote::Driver
-$Test::Selenium::Remote::Driver::VERSION = '0.1952'; # TRIAL
+$Test::Selenium::Remote::Driver::VERSION = '0.20';
 use Moo;
 use Test::Selenium::Remote::WebElement;
 use Test::LongString;
