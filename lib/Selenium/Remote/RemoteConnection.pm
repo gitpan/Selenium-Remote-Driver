@@ -1,5 +1,5 @@
 package Selenium::Remote::RemoteConnection;
-$Selenium::Remote::RemoteConnection::VERSION = '0.20';
+$Selenium::Remote::RemoteConnection::VERSION = '0.2001';
 #ABSTRACT: Connect to a selenium server
 
 use Moo;
@@ -35,16 +35,18 @@ sub BUILD {
     my $self = shift;
     my $status;
     try {
-      $status = $self->request('GET','status');
+        $status = $self->request('GET','status');
     }
     catch {
         croak "Could not connect to SeleniumWebDriver: $_" ;
     };
+
     if($status->{cmd_status} ne 'OK') {
         # Could be grid, see if we can talk to it
         $status = undef;
-        $status = $self->request('GET', 'grid/api/testsession');
+        $status = $self->request('GET', 'grid/api/hub/status');
     }
+
     unless ($status->{cmd_status} eq 'OK') {
         croak "Selenium server did not return proper status";
     }
@@ -105,6 +107,7 @@ sub _process_response {
     else {
         my $decoded_json = undef;
         print "RES: ".$response->decoded_content."\n\n" if $self->debug;
+
         if (($response->message ne 'No Content') && ($response->content ne '')) {
             if ($response->content_type !~ m/json/i) {
                 $data->{'cmd_return'} = 'Server returned error message '.$response->content.' instead of data';
@@ -159,7 +162,7 @@ Selenium::Remote::RemoteConnection - Connect to a selenium server
 
 =head1 VERSION
 
-version 0.20
+version 0.2001
 
 =head1 SEE ALSO
 

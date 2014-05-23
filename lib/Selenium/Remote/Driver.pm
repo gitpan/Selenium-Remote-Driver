@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver;
-$Selenium::Remote::Driver::VERSION = '0.20';
+$Selenium::Remote::Driver::VERSION = '0.2001';
 # ABSTRACT: Perl Client for Selenium Remote Driver
 
 use Moo;
@@ -1047,7 +1047,7 @@ sub upload_file {
     require MIME::Base64;
 
     my $params = {
-        file => encode_base64($string)          # base64-encoded string
+        file => MIME::Base64::encode_base64($string)          # base64-encoded string
     };
     return $self->_execute_command( $res, $params );
 }
@@ -1061,7 +1061,7 @@ sub get_text {
 
 sub get_body {
     my $self = shift;
-    return $self->get_text('//body');
+    return $self->get_text('//body', 'xpath');
 }
 
 
@@ -1089,7 +1089,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.20
+version 0.2001
 
 =head1 SYNOPSIS
 
@@ -2236,6 +2236,10 @@ Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>
 
 =item *
 
+Eric Johnson <eric.git@iijo.org>
+
+=item *
+
 Gordon Child <gordon@gordonchild.com>
 
 =item *
@@ -2245,6 +2249,10 @@ GreatFlamingFoo <greatflamingfoo@gmail.com>
 =item *
 
 Ivan Kurmanov <duraley@gmail.com>
+
+=item *
+
+Joe Higton <draxil@gmail.com>
 
 =item *
 

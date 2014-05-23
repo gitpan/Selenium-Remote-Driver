@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver::Firefox::Profile;
-$Selenium::Remote::Driver::Firefox::Profile::VERSION = '0.20';
+$Selenium::Remote::Driver::Firefox::Profile::VERSION = '0.2001';
 # ABSTRACT: Use custom profiles with Selenium::Remote::Driver
 
 use strict;
@@ -174,7 +174,7 @@ Selenium::Remote::Driver::Firefox::Profile - Use custom profiles with Selenium::
 
 =head1 VERSION
 
-version 0.20
+version 0.2001
 
 =head1 DESCRIPTION
 

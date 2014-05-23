@@ -87,16 +87,18 @@
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.20",
+   "version" : "0.2001",
    "x_contributors" : [
       "Allen Lew <allen@alew.org>",
       "Charles Howes <charles.howes@globalrelay.net>",
       "Daniel Fackrell <dfackrell@bluehost.com>",
       "Dave Rolsky <autarch@urth.org>",
       "Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>",
+      "Eric Johnson <eric.git@iijo.org>",
       "Gordon Child <gordon@gordonchild.com>",
       "GreatFlamingFoo <greatflamingfoo@gmail.com>",
       "Ivan Kurmanov <duraley@gmail.com>",
+      "Joe Higton <draxil@gmail.com>",
       "Jon Hermansen <jon.hermansen@gmail.com>",
       "Ken Swanson <kswanson@genome.wustl.edu>",
       "Phil Kania <phil@vivox.com>",

@@ -1,6 +1,6 @@
 package Test::Selenium::Remote::WebElement;
 # ABSTRACT: A sub-class of L<Selenium::Remote::WebElement>, with several test-specific method additions.
-$Test::Selenium::Remote::WebElement::VERSION = '0.20';
+$Test::Selenium::Remote::WebElement::VERSION = '0.2001';
 use Moo;
 use Sub::Install;
 extends 'Selenium::Remote::WebElement';
@@ -33,6 +33,7 @@ sub has_args {
     my $fun_name      = shift;
     my $hash_fun_args = {
         'get_attribute' => 1,
+        'send_keys'     => 1,
     };
     return ( $hash_fun_args->{$fun_name} // 0 );
 }

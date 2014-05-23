@@ -1,5 +1,5 @@
 package Selenium::Remote::WebElement;
-$Selenium::Remote::WebElement::VERSION = '0.20';
+$Selenium::Remote::WebElement::VERSION = '0.2001';
 # ABSTRACT: Representation of an HTML Element used by Selenium Remote Driver
 
 use Moo;
@@ -35,6 +35,7 @@ sub submit {
 
 sub send_keys {
     my ( $self, @strings ) = @_;
+    croak "no keys to send" unless scalar @strings >= 1;
     my $res = { 'command' => 'sendKeysToElement', 'id' => $self->id };
     map { $_ .= "" } @strings;
     my $params = {
@@ -189,7 +190,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.20
+version 0.2001
 
 =head1 DESCRIPTION
 
