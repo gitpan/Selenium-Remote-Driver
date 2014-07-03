@@ -1,5 +1,5 @@
 package Selenium::Remote::RemoteConnection;
-$Selenium::Remote::RemoteConnection::VERSION = '0.2001';
+$Selenium::Remote::RemoteConnection::VERSION = '0.2002';
 #ABSTRACT: Connect to a selenium server
 
 use Moo;
@@ -84,7 +84,7 @@ sub request {
         $content = $json->allow_nonref->utf8->encode($params);
     }
 
-    print "REQ: $url, $content\n" if $self->debug;
+    print "REQ: $method, $url, $content\n" if $self->debug;
 
     # HTTP request
     my $header =
@@ -110,6 +110,7 @@ sub _process_response {
 
         if (($response->message ne 'No Content') && ($response->content ne '')) {
             if ($response->content_type !~ m/json/i) {
+                $data->{'cmd_status'} = 'NOTOK';
                 $data->{'cmd_return'} = 'Server returned error message '.$response->content.' instead of data';
                 return $data;
             }
@@ -130,7 +131,7 @@ sub _process_response {
         }
         elsif ($response->is_success) {
             $data->{'cmd_status'} = 'OK';
-            if (defined $decoded_json) {
+            if (defined $decoded_json && defined $decoded_json->{'value'}) {
                 $data->{'cmd_return'} = $decoded_json->{'value'};
             }
             else {
@@ -162,7 +163,7 @@ Selenium::Remote::RemoteConnection - Connect to a selenium server
 
 =head1 VERSION
 
-version 0.2001
+version 0.2002
 
 =head1 SEE ALSO
 

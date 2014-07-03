@@ -1,5 +1,5 @@
 package Selenium::Remote::WebElement;
-$Selenium::Remote::WebElement::VERSION = '0.2001';
+$Selenium::Remote::WebElement::VERSION = '0.2002';
 # ABSTRACT: Representation of an HTML Element used by Selenium Remote Driver
 
 use Moo;
@@ -190,7 +190,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.2001
+version 0.2002
 
 =head1 DESCRIPTION
 
@@ -434,6 +434,9 @@ various element related operations can be carried out.
 
  Usage:
     $elem->describe();
+
+ Note: DEPRECATED as of 2.42.2 -- use get_text, get_value, is_displayed, or
+ whatever appropriate WebElement function you need instead
 
 =head1 SEE ALSO
 

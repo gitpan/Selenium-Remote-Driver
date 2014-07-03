@@ -87,12 +87,13 @@
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.2001",
+   "version" : "0.2002",
    "x_contributors" : [
       "Allen Lew <allen@alew.org>",
       "Charles Howes <charles.howes@globalrelay.net>",
       "Daniel Fackrell <dfackrell@bluehost.com>",
       "Dave Rolsky <autarch@urth.org>",
+      "Dmitry Karasik <dmitry@karasik.eu.org>",
       "Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>",
       "Eric Johnson <eric.git@iijo.org>",
       "Gordon Child <gordon@gordonchild.com>",
@@ -105,7 +106,8 @@
       "Phil Mitchell <phil.mitchell@pobox.com>",
       "Robert Utter <utter.robert@gmail.com>",
       "Tom Hukins <tom@eborcom.com>",
-      "Vishwanath Janmanchi <jvishwanath@gmail.com>"
+      "Vishwanath Janmanchi <jvishwanath@gmail.com>",
+      "jamadam <sugama@jamadam.com>"
    ]
 }
 

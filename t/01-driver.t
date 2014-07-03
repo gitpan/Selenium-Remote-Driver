@@ -3,7 +3,9 @@ use warnings;
 
 use JSON;
 use Net::Ping;
+use HTTP::Headers;
 use Test::More;
+use LWP::Protocol::PSGI;
 use Test::LWP::UserAgent;
 use Selenium::Remote::Driver;
 
@@ -348,9 +350,73 @@ AUTO_CLOSE: {
     $driver->auto_close(1);
 }
 
+BASE_URL: {
+    {
+        package MySeleniumRemoteDriver;
+        use Moo;
+        extends 'Selenium::Remote::Driver';
+        sub _execute_command { $_[2]->{url} }
+        1;
+    }
+
+    my @tests = ({
+        base_url => 'http://example.com',
+        url      => '/foo',
+        expected => 'http://example.com/foo',
+    },{
+        base_url => 'http://example.com/',
+        url      => '/foo',
+        expected => 'http://example.com/foo',
+    },{
+        base_url => 'http://example.com',
+        url      => 'foo',
+        expected => 'http://example.com/foo',
+    },{
+        base_url => 'http://example.com/a',
+        url      => '/foo',
+        expected => 'http://example.com/a/foo',
+    },{
+        base_url => 'http://example.com/a',
+        url      => 'foo',
+        expected => 'http://example.com/a/foo',
+    },{
+        base_url => 'http://example.com/a',
+        url      => 'http://blog.example.com/foo',
+        expected => 'http://blog.example.com/foo',
+    });
+
+    for my $test (@tests) {
+        my $base_url_driver = MySeleniumRemoteDriver->new(
+            browser_name => 'firefox',
+            base_url     => $test->{base_url},
+            testing      => 1,
+        );
+        my $got = $base_url_driver->get($test->{url});
+        is $got, $test->{expected}, "base_url + $test->{url}";
+    }
+}
+
 QUIT: {
     $ret = $driver->quit();
     ok((not defined $driver->{'session_id'}), 'Killed the remote session');
+}
+
+NO_SERVER_ERROR_MESSAGE: {
+    LWP::Protocol::PSGI->unregister;
+    my $unused_port = do {
+        my $l = IO::Socket::INET->new(
+            Listen    => 5,
+            LocalHost => '127.0.0.1',
+            LocalPort => 0,
+            Proto     => 'tcp',
+            ReuseAddr => 1,
+        ) or die $!;
+        $l->sockport;
+    };
+    eval {
+        my $sel = Selenium::Remote::Driver->new(port => $unused_port);
+    };
+    unlike($@, qr/Use of uninitialized value/, "Error message for no server at host/port combination is helpful");
 }
 
 done_testing;

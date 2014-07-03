@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver;
-$Selenium::Remote::Driver::VERSION = '0.2001';
+$Selenium::Remote::Driver::VERSION = '0.2002';
 # ABSTRACT: Perl Client for Selenium Remote Driver
 
 use Moo;
@@ -47,6 +47,17 @@ has 'browser_name' => (
     is      => 'rw',
     coerce  => sub { ( defined($_[0]) ? $_[0] : 'firefox' )},
     default => sub {'firefox'},
+);
+
+has 'base_url' => (
+    is      => 'rw',
+    lazy    => 1,
+    coerce  => sub {
+        my $base_url = shift;
+        $base_url =~ s|/$||;
+        return $base_url;
+    },
+    predicate => 'has_base_url',
 );
 
 has 'platform' => (
@@ -494,8 +505,14 @@ sub navigate {
 
 sub get {
     my ( $self, $url ) = @_;
+
+    if ($self->has_base_url && $url !~ m|://|) {
+        $url =~ s|^/||;
+        $url = $self->base_url . "/" . $url;
+    }
+
     my $res    = { 'command' => 'get' };
-    my $params = { 'url'     => $url };
+    my $params = { 'url'     => $url  };
     return $self->_execute_command( $res, $params );
 }
 
@@ -713,7 +730,7 @@ sub set_window_position {
     my $res = { 'command' => 'setWindowPosition', 'window_handle' => $window };
     my $params = { 'x' => $x, 'y' => $y };
     my $ret = $self->_execute_command( $res, $params );
-    if ( $ret =~ m/204/g ) {
+    if ( $ret =~ m/200|204/g ) {
         return 1;
     }
     else { return 0; }
@@ -729,7 +746,7 @@ sub set_window_size {
     my $res = { 'command' => 'setWindowSize', 'window_handle' => $window };
     my $params = { 'height' => $height, 'width' => $width };
     my $ret = $self->_execute_command( $res, $params );
-    if ( $ret =~ m/204/g ) {
+    if ( $ret =~ m/200|204/g ) {
         return 1;
     }
     else { return 0; }
@@ -939,7 +956,7 @@ sub find_child_elements {
                 die $@;
             }
         }
-        my $elem_obj_arr;
+        my $elem_obj_arr = [];
         my $i = 0;
         foreach (@$ret_data) {
             $elem_obj_arr->[$i] =
@@ -1089,7 +1106,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.2001
+version 0.2002
 
 =head1 SYNOPSIS
 
@@ -1199,6 +1216,7 @@ available here.
         'default_finder'       - <string>   - choose default finder used for find_element* {class|class_name|css|id|link|link_text|name|partial_link_text|tag_name|xpath}
         'webelement_class'     - <string>   - sub-class of Selenium::Remote::WebElement if you wish to use an alternate WebElement class.
         'ua'                   - LWP::UserAgent instance - if you wish to use a specific $ua, like from Test::LWP::UserAgent
+        'base_url'             - <string>   - OPTIONAL, base url for the website Selenium acts on. This can save you from repeating the domain in every call to $driver->get()
 
 
     If no values are provided, then these defaults will be assumed:
@@ -1268,12 +1286,12 @@ available here.
  Input:
     The only respected keys in the input hash are:
 
+        desired_capabilities - HASHREF - defaults to {}
         remote_server_addr   - STRING  - defaults to localhost
         port                 - INTEGER - defaults to 4444
         default_finder       - STRING  - defaults to xpath
         webelement_class     - STRING  - defaults to Selenium::Remote::WebElement
         auto_close           - BOOLEAN - defaults to 1
-        desired_capabilities - HASHREF - defaults to {}
 
     Except for C<desired_capabilities>, these keys perform exactly the
     same as listed in the regular "new" constructor.
@@ -2232,6 +2250,10 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
+Dmitry Karasik <dmitry@karasik.eu.org>
+
+=item *
+
 Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>
 
 =item *
@@ -2281,6 +2303,10 @@ Tom Hukins <tom@eborcom.com>
 =item *
 
 Vishwanath Janmanchi <jvishwanath@gmail.com>
+
+=item *
+
+jamadam <sugama@jamadam.com>
 
 =back
 
