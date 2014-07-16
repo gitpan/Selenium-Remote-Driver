@@ -1,5 +1,5 @@
 package Selenium::Remote::WebElement;
-$Selenium::Remote::WebElement::VERSION = '0.2002';
+$Selenium::Remote::WebElement::VERSION = '0.21';
 # ABSTRACT: Representation of an HTML Element used by Selenium Remote Driver
 
 use Moo;
@@ -128,6 +128,12 @@ sub is_displayed {
 }
 
 
+sub is_hidden {
+    my ($self) = @_;
+    return ! $self->is_displayed();
+}
+
+
 sub drag {
     my ( $self, $x, $y ) = @_;
     if ( ( not defined $x ) || ( not defined $y ) ) {
@@ -190,7 +196,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.2002
+version 0.21
 
 =head1 DESCRIPTION
 
@@ -372,6 +378,17 @@ various element related operations can be carried out.
 
  Usage:
     $elem->is_displayed();
+
+=head2 is_hidden
+
+ Description:
+    Determine if an element is currently hidden.
+
+ Output:
+    BOOLEAN - Whether the element is hidden.
+
+ Usage:
+    $elem->is_hidden();
 
 =head2 drag
 

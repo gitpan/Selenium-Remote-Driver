@@ -1,6 +1,6 @@
 package Test::Selenium::Remote::Driver;
 # ABSTRACT: Useful testing subclass for Selenium::Remote::Driver
-$Test::Selenium::Remote::Driver::VERSION = '0.2002';
+$Test::Selenium::Remote::Driver::VERSION = '0.21';
 use Moo;
 use Test::Selenium::Remote::WebElement;
 use Test::LongString;
@@ -318,12 +318,12 @@ sub content_like {
     my $content = $self->get_page_source();
 
     if ( not ref $regex eq 'ARRAY' ) {
-        my $desc = qq{Content is like "$regex"} if ( not defined $desc );
+        $desc = qq{Content is like "$regex"} if ( not defined $desc );
         return like_string( $content, $regex, $desc );
     }
     elsif ( ref $regex eq 'ARRAY' ) {
         for my $re (@$regex) {
-            my $desc = qq{Content is like "$re"} if ( not defined $desc );
+            $desc = qq{Content is like "$re"} if ( not defined $desc );
             like_string( $content, $re, $desc );
         }
     }
