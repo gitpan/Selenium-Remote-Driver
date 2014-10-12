@@ -1,5 +1,5 @@
 package Selenium::Remote::RemoteConnection;
-$Selenium::Remote::RemoteConnection::VERSION = '0.2102';
+$Selenium::Remote::RemoteConnection::VERSION = '0.2150'; # TRIAL
 #ABSTRACT: Connect to a selenium server
 
 use Moo;
@@ -29,6 +29,11 @@ has 'debug' => (
 has 'ua' => (
     is => 'lazy',
     builder => sub { return LWP::UserAgent->new; }
+);
+
+has 'error_handler' => (
+    is => 'lazy',
+    builder => sub { return Selenium::Remote::ErrorHandler->new; }
 );
 
 sub BUILD {
@@ -113,7 +118,7 @@ sub _process_response {
         if (($response->message ne 'No Content') && ($response->content ne '')) {
             if ($response->content_type !~ m/json/i) {
                 $data->{'cmd_status'} = 'NOTOK';
-                $data->{'cmd_return'} = 'Server returned error message '.$response->content.' instead of data';
+                $data->{'cmd_return'}->{message} = 'Server returned error message '.$response->content.' instead of data';
                 return $data;
             }
             $decoded_json = $json->allow_nonref(1)->utf8(1)->decode($response->content);
@@ -121,10 +126,9 @@ sub _process_response {
         }
 
         if ($response->is_error) {
-            my $error_handler = Selenium::Remote::ErrorHandler->new;
             $data->{'cmd_status'} = 'NOTOK';
             if (defined $decoded_json) {
-                $data->{'cmd_return'} = $error_handler->process_error($decoded_json);
+                $data->{'cmd_return'} = $self->error_handler->process_error($decoded_json);
             }
             else {
                 $data->{'cmd_return'} = 'Server returned error code '.$response->code.' and no data';
@@ -170,7 +174,7 @@ Selenium::Remote::RemoteConnection - Connect to a selenium server
 
 =head1 VERSION
 
-version 0.2102
+version 0.2150
 
 =head1 SEE ALSO
 

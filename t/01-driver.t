@@ -160,7 +160,7 @@ IME: {
         if ($@) {
             skip "ime not available on this system",3;
         }
-    };
+    }
 }
 
 LOAD_PAGE: {
@@ -250,10 +250,10 @@ FIND: {
     $ret = $driver->find_child_elements($elem, "//option[\@selected='selected']");
     is(@{$ret}, 4, 'Got 4 WebElements');
     my $expected_err = "An element could not be located on the page using the "
-    . "given search parameters: "
-    . "element_that_doesnt_exist,id"
-    # the following needs to always be right before the eval
-    . " at " . __FILE__ . " line " . (__LINE__+1);
+      . "given search parameters: "
+      . "element_that_doesnt_exist,id"
+      # the following needs to always be right before the eval
+      . " at " . __FILE__ . " line " . (__LINE__+1);
     eval { $driver->find_element("element_that_doesnt_exist","id"); };
     chomp $@;
     is($@,$expected_err.".","find_element croaks properly");
@@ -416,22 +416,31 @@ QUIT: {
     ok((not defined $driver->{'session_id'}), 'Killed the remote session');
 }
 
-NO_SERVER_ERROR_MESSAGE: {
-    LWP::Protocol::PSGI->unregister;
-    my $unused_port = do {
-        my $l = IO::Socket::INET->new(
-            Listen    => 5,
-            LocalHost => '127.0.0.1',
-            LocalPort => 0,
-            Proto     => 'tcp',
-            ReuseAddr => 1,
-        ) or die $!;
-        $l->sockport;
-    };
-    eval {
-        my $sel = Selenium::Remote::Driver->new(port => $unused_port);
-    };
-    unlike($@, qr/Use of uninitialized value/, "Error message for no server at host/port combination is helpful");
+STORAGE: {
+    my $chrome;
+
+  SKIP: {
+        eval {
+            $chrome = Selenium::Remote::Driver->new(browser_name => 'chrome');
+            $chrome->get($website);
+        };
+
+        if ($@ || !defined $chrome) {
+            skip 'FirefoxDriver does not support Storage APIs; Chromedriver must be configured to perform storage tests', 3;
+        }
+
+        my ($key, $value) = ('testKey', 'testValue');
+        $chrome->execute_script('localStorage.' . $key . ' = "' . $value . '"; return 1');
+
+        my $actual = $chrome->get_local_storage_item($key);
+        ok($actual eq $value, 'can retrieve local storage by key');
+
+        ok($chrome->delete_local_storage_item($key), 'can delete local storage by key');
+        my $now_empty = $chrome->get_local_storage_item($key);
+        ok(!(defined $now_empty), 'retrieving an empty or deleted local storage key returns undef');
+    }
 }
+
+
 
 done_testing;

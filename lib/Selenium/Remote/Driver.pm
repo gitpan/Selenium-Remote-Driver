@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver;
-$Selenium::Remote::Driver::VERSION = '0.2102';
+$Selenium::Remote::Driver::VERSION = '0.2150'; # TRIAL
 # ABSTRACT: Perl Client for Selenium Remote Driver
 
 use Moo;
@@ -85,7 +85,7 @@ has 'webelement_class' => (
 
 has 'default_finder' => (
     is      => 'rw',
-    coerce  => sub { FINDERS->{ $_[0] } },
+    coerce  => sub { __PACKAGE__->FINDERS->{ $_[0] } },
     default => sub {'xpath'},
 );
 
@@ -343,7 +343,8 @@ sub _request_new_session {
     }
     else {
         my $error = 'Could not create new session';
-        $error .= ": $resp->{cmd_return}" if defined $resp->{cmd_return};
+        $error .= ': ' . $resp->{cmd_return}->{message}
+          if exists $resp->{cmd_return}->{message};
         croak $error;
     }
 }
@@ -578,7 +579,7 @@ sub refresh {
 
 sub has_javascript {
     my $self = shift;
-    return $self->javascript == JSON::true;
+    return int($self->javascript);
 }
 
 
@@ -735,20 +736,12 @@ sub switch_to_window {
 
 
 sub get_speed {
-    my ($self) = @_;
-    my $res = { 'command' => 'getSpeed' };
-    return $self->_execute_command($res);
+    carp 'get_speed is deprecated and will be removed in the upcoming version of this module';
 }
 
 
 sub set_speed {
-    my ( $self, $speed ) = @_;
-    if ( not defined $speed ) {
-        return 'Speed not provided.';
-    }
-    my $res    = { 'command' => 'setSpeed' };
-    my $params = { 'speed'   => $speed };
-    return $self->_execute_command( $res, $params );
+    carp 'set_speed is deprecated and will be removed in the upcoming version of this module';
 }
 
 
@@ -845,7 +838,7 @@ sub find_element {
         croak 'Search string to find element not provided.';
     }
     my $using =
-      ( defined $method ) ? FINDERS->{$method} : $self->default_finder;
+      ( defined $method ) ? $self->FINDERS->{$method} : $self->default_finder;
     if ( defined $using ) {
         my $res = { 'command' => 'findElement' };
         my $params = { 'using' => $using, 'value' => $query };
@@ -882,7 +875,7 @@ sub find_elements {
     }
 
     my $using =
-      ( defined $method ) ? FINDERS->{$method} : $self->default_finder;
+      ( defined $method ) ? $self->FINDERS->{$method} : $self->default_finder;
 
     if ( defined $using ) {
         my $res = { 'command' => 'findElements' };
@@ -927,9 +920,9 @@ sub find_child_element {
         croak "Missing parameters";
     }
     my $using = ( defined $method ) ? $method : $self->default_finder;
-    if ( exists FINDERS->{$using} ) {
+    if ( exists $self->FINDERS->{$using} ) {
         my $res = { 'command' => 'findChildElement', 'id' => $elem->{id} };
-        my $params = { 'using' => FINDERS->{$using}, 'value' => $query };
+        my $params = { 'using' => $self->FINDERS->{$using}, 'value' => $query };
         my $ret_data = eval { $self->_execute_command( $res, $params ); };
         if ($@) {
             if ( $@
@@ -962,9 +955,9 @@ sub find_child_elements {
         croak "Missing parameters";
     }
     my $using = ( defined $method ) ? $method : $self->default_finder;
-    if ( exists FINDERS->{$using} ) {
+    if ( exists $self->FINDERS->{$using} ) {
         my $res = { 'command' => 'findChildElements', 'id' => $elem->{id} };
-        my $params = { 'using' => FINDERS->{$using}, 'value' => $query };
+        my $params = { 'using' => $self->FINDERS->{$using}, 'value' => $query };
         my $ret_data = eval { $self->_execute_command( $res, $params ); };
         if ($@) {
             if ( $@
@@ -1137,6 +1130,23 @@ sub set_inner_window_size {
     return $self->execute_script(join(';', @resize)) ? 1 : 0;
 }
 
+
+sub get_local_storage_item {
+    my ($self, $key) = @_;
+    my $res = { 'command' => 'getLocalStorageItem' };
+    my $params = { 'key' => $key };
+    return $self->_execute_command($res, $params);
+}
+
+
+sub delete_local_storage_item {
+    my ($self, $key) = @_;
+    my $res = { 'command' => 'deleteLocalStorageItem' };
+    my $params = { 'key' => $key };
+    return $self->_execute_command($res, $params);
+}
+
+
 1;
 
 __END__
@@ -1151,7 +1161,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.2102
+version 0.2150
 
 =head1 SYNOPSIS
 
@@ -1851,9 +1861,19 @@ To conveniently write the screenshot to a file, see L<capture_screenshot()>.
 =head2 switch_to_window
 
  Description:
-    Change focus to another window. The window to change focus to may be
-    specified by its server assigned window handle, or by the value of its name
-    attribute.
+    Change focus to another window. The window to change focus to may
+    be specified by its server assigned window handle, or by the value
+    of the page's window.name attribute.
+
+    If you wish to use the window name as the target, you'll need to
+    have set C<window.name> on the page either in app code or via
+    L</execute_script>, or pass a name as the second argument to the
+    C<window.open()> function when opening the new window. Note that
+    the window name used here has nothing to do with the window title,
+    or the C<< <title> >> element on the page.
+
+    Otherwise, use L</get_window_handles> and select a
+    Webdriver-generated handle from the output of that function.
 
  Input: 1
     Required:
@@ -1871,29 +1891,20 @@ To conveniently write the screenshot to a file, see L<capture_screenshot()>.
 =head2 get_speed
 
  Description:
-    Get the current user input speed. The actual input speed is still browser
-    specific and not covered by the Driver.
-
- Output:
-    STRING - One of these: SLOW, MEDIUM, FAST
-
- Usage:
-    print $driver->get_speed();
+    DEPRECATED - this function is a no-op in Webdriver, and will be
+    removed in the upcoming version of this module. See
+    https://groups.google.com/d/topic/selenium-users/oX0ZnYFPuSA/discussion
+    and
+    http://code.google.com/p/selenium/source/browse/trunk/java/client/src/org/openqa/selenium/WebDriverCommandProcessor.java
 
 =head2 set_speed
 
  Description:
-    Set the user input speed.
-
- Input:
-    STRING - One of these: SLOW, MEDIUM, FAST
-
- Usage:
-    $driver->set_speed('MEDIUM');
-
- Note: This function is a no-op in WebDriver (?). See
-       https://groups.google.com/d/topic/selenium-users/oX0ZnYFPuSA/discussion and
-       http://code.google.com/p/selenium/source/browse/trunk/java/client/src/org/openqa/selenium/WebDriverCommandProcessor.java
+    DEPRECATED - this function is a no-op in Webdriver, and will be
+    removed in the upcoming version of this module. See
+    https://groups.google.com/d/topic/selenium-users/oX0ZnYFPuSA/discussion
+    and
+    http://code.google.com/p/selenium/source/browse/trunk/java/client/src/org/openqa/selenium/WebDriverCommandProcessor.java
 
 =head2 set_window_position
 
@@ -2108,7 +2119,7 @@ To conveniently write the screenshot to a file, see L<capture_screenshot()>.
  Description:
     Send an event to the active element to depress or release a modifier key.
 
-  Input: 2
+ Input: 2
     Required:
       value - String - The modifier key event to be sent. This key must be one 'Ctrl','Shift','Alt',' or 'Command'/'Meta' as defined by the send keys command
       isdown - Boolean/String - Whether to generate a key down or key up
@@ -2225,7 +2236,6 @@ To conveniently write the screenshot to a file, see L<capture_screenshot()>.
 =head2 set_inner_window_size
 
  Description:
-
      Set the inner window size by closing the current window and
      reopening the current page in a new window. This can be useful
      when using browsers to mock as mobile devices.
@@ -2242,6 +2252,33 @@ To conveniently write the screenshot to a file, see L<capture_screenshot()>.
 
  Usage:
      $driver->set_inner_window_size(640, 480)
+
+=head2 get_local_storage_item
+
+ Description:
+     Get the value of a local storage item specified by the given key.
+
+ Input: 1
+    Required:
+        STRING - name of the key to be retrieved
+
+ Output:
+     STRING - value of the local storage item
+
+ Usage:
+     $driver->get_local_storage_item('key')
+
+=head2 delete_local_storage_item
+
+ Description:
+     Get the value of a local storage item specified by the given key.
+
+ Input: 1
+    Required
+        STRING - name of the key to be deleted
+
+ Usage:
+     $driver->delete_local_storage_item('key')
 
 =head1 SEE ALSO
 
@@ -2260,6 +2297,14 @@ L<https://code.google.com/p/selenium/wiki/JsonWireProtocol#Capabilities_JSON_Obj
 =item *
 
 L<https://github.com/gempesaw/Selenium-Remote-Driver/wiki|https://github.com/gempesaw/Selenium-Remote-Driver/wiki>
+
+=item *
+
+L<Brownie|Brownie>
+
+=item *
+
+L<Wight|Wight>
 
 =back
 
@@ -2304,6 +2349,10 @@ Allen Lew <allen@alew.org>
 
 =item *
 
+Brian Horakh <brianh@zoovy.com>
+
+=item *
+
 Charles Howes <charles.howes@globalrelay.net>
 
 =item *
@@ -2325,6 +2374,10 @@ Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>
 =item *
 
 Eric Johnson <eric.git@iijo.org>
+
+=item *
+
+Gabor Szabo <gabor@szabgab.com>
 
 =item *
 

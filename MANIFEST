@@ -25,11 +25,13 @@ t/01-driver.t
 t/02-webelement.t
 t/03-spec-coverage.t
 t/04-commands-implemented.t
+t/10-switch-to-window.t
 t/Firefox-Profile.t
 t/Test-Selenium-Remote-Driver-google.t
 t/Test-Selenium-Remote-Driver.t
 t/Test-Selenium-Remote-WebElement.t
 t/bin/record.pl
+t/error.t
 t/http-server.pl
 t/lib/MockSeleniumWebDriver.pm
 t/mock-recordings/01-driver-mock-MSWin32.json

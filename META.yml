@@ -8,8 +8,10 @@ author:
 build_requires:
   File::Basename: '0'
   File::stat: '0'
+  IO::Socket::INET: '0'
   LWP::Protocol::PSGI: '0.04'
   LWP::Simple: '0'
+  Test::Exception: '0'
   Test::LWP::UserAgent: '0'
   Test::MockObject: '0'
   Test::MockObject::Extends: '0'
@@ -40,7 +42,7 @@ requires:
   JSON: '0'
   LWP::UserAgent: '0'
   MIME::Base64: '0'
-  Moo: '0'
+  Moo: '1.005'
   Moo::Role: '0'
   Net::Ping: '0'
   Scalar::Util: '0'
@@ -57,15 +59,17 @@ requires:
 resources:
   bugtracker: https://github.com/gempesaw/Selenium-Remote-Driver/issues
   repository: git://github.com/gempesaw/Selenium-Remote-Driver.git
-version: '0.2102'
+version: '0.2150'
 x_contributors:
   - 'Allen Lew <allen@alew.org>'
+  - 'Brian Horakh <brianh@zoovy.com>'
   - 'Charles Howes <charles.howes@globalrelay.net>'
   - 'Daniel Fackrell <dfackrell@bluehost.com>'
   - 'Dave Rolsky <autarch@urth.org>'
   - 'Dmitry Karasik <dmitry@karasik.eu.org>'
   - 'Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>'
   - 'Eric Johnson <eric.git@iijo.org>'
+  - 'Gabor Szabo <gabor@szabgab.com>'
   - 'Gordon Child <gordon@gordonchild.com>'
   - 'GreatFlamingFoo <greatflamingfoo@gmail.com>'
   - 'Ivan Kurmanov <duraley@gmail.com>'
