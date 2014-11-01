@@ -1,9 +1,9 @@
 package Selenium::Remote::WebElement;
-$Selenium::Remote::WebElement::VERSION = '0.2150'; # TRIAL
+$Selenium::Remote::WebElement::VERSION = '0.2151'; # TRIAL
 # ABSTRACT: Representation of an HTML Element used by Selenium Remote Driver
 
 use Moo;
-use Carp qw(croak);
+use Carp qw(carp croak);
 
 
 
@@ -135,16 +135,7 @@ sub is_hidden {
 
 
 sub drag {
-    my ( $self, $x, $y ) = @_;
-    if ( ( not defined $x ) || ( not defined $y ) ) {
-        croak 'X & Y pixel coordinates not provided';
-    }
-    my $res = { 'command' => 'dragElement', 'id' => $self->id };
-    my $params = {
-        'x' => $x,
-        'y' => $y,
-    };
-    return $self->_execute_command( $res, $params );
+    carp 'drag is no longer available in the JSONWireProtocol and will be removed in the next version of this module';
 }
 
 
@@ -196,7 +187,7 @@ Selenium::Remote::WebElement - Representation of an HTML Element used by Seleniu
 
 =head1 VERSION
 
-version 0.2150
+version 0.2151
 
 =head1 DESCRIPTION
 
@@ -403,6 +394,21 @@ various element related operations can be carried out.
 
  Usage:
     $elem->drag(216,158);
+
+ Note: DEPRECATED - drag is no longer available in the
+ JSONWireProtocol. We are working on an ActionsChains implementation,
+ but drag and drop doesn't currently work on the Webdriver side for
+ HTML5 pages. For reference, see:
+
+ http://elementalselenium.com/tips/39-drag-and-drop
+ https://gist.github.com/rcorreia/2362544
+
+ Check out the mouse_move_to_location, button_down, and button_up
+ functions on Selenium::Remote::Driver.
+
+ https://metacpan.org/pod/Selenium::Remote::Driver#mouse_move_to_location
+ https://metacpan.org/pod/Selenium::Remote::Driver#button_down
+ https://metacpan.org/pod/Selenium::Remote::Driver#button_up
 
 =head2 get_size
 
