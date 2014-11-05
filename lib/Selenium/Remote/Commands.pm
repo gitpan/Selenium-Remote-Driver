@@ -1,5 +1,5 @@
 package Selenium::Remote::Commands;
-$Selenium::Remote::Commands::VERSION = '0.2151'; # TRIAL
+$Selenium::Remote::Commands::VERSION = '0.2152'; # TRIAL
 # ABSTRACT: Implement commands for Selenium::Remote::Driver
 
 use Moo;
@@ -68,6 +68,11 @@ has '_cmds' => (
                 'method'             => 'GET',
                 'url'                => 'session/:sessionId/window/:windowHandle/position',
                 'no_content_success' => 0
+            },
+            'maximizeWindow' => {
+                'method'             => 'POST',
+                'url'                => 'session/:sessionId/window/:windowHandle/maximize',
+                'no_content_success' => 1
             },
             'setWindowSize' => {
                 'method'             => 'POST',
@@ -421,7 +426,7 @@ Selenium::Remote::Commands - Implement commands for Selenium::Remote::Driver
 
 =head1 VERSION
 
-version 0.2151
+version 0.2152
 
 =head1 SEE ALSO
 

@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver;
-$Selenium::Remote::Driver::VERSION = '0.2151'; # TRIAL
+$Selenium::Remote::Driver::VERSION = '0.2152'; # TRIAL
 # ABSTRACT: Perl Client for Selenium Remote Driver
 
 use Moo;
@@ -335,8 +335,13 @@ sub _request_new_session {
     }
     else {
         my $error = 'Could not create new session';
-        $error .= ': ' . $resp->{cmd_return}->{message}
-          if exists $resp->{cmd_return}->{message};
+
+        if (ref $resp->{cmd_return} eq 'HASH') {
+            $error .= ': ' . $resp->{cmd_return}->{message};
+        }
+        else {
+            $error .= ': ' . $resp->{cmd_return};
+        }
         croak $error;
     }
 }
@@ -763,6 +768,15 @@ sub set_window_size {
 }
 
 
+sub maximize_window {
+    my ( $self, $window ) = @_;
+    $window = ( defined $window ) ? $window : 'current';
+    my $res = { 'command' => 'maximizeWindow', 'window_handle' => $window };
+    my $ret = $self->_execute_command( $res );
+    return $ret ? 1 : 0;
+}
+
+
 sub get_all_cookies {
     my ($self) = @_;
     my $res = { 'command' => 'getAllCookies' };
@@ -1160,7 +1174,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.2151
+version 0.2152
 
 =head1 SYNOPSIS
 
@@ -1937,6 +1951,20 @@ To conveniently write the screenshot to a file, see L<capture_screenshot()>.
  Usage:
     $driver->set_window_size(640, 480);
 
+=head2 maximize_window
+
+ Description:
+    Maximizes the browser window
+
+ Input:
+    STRING - <optional> - window handle (default is 'current' window)
+
+ Output:
+    BOOLEAN - Success or failure
+
+ Usage:
+    $driver->maximize_window();
+
 =head2 get_all_cookies
 
  Description:
@@ -2349,13 +2377,55 @@ Mark Stosberg <mark@stosberg.com>
 
 =head1 CONTRIBUTORS
 
-=for stopwords Allen Lew Gordon Child GreatFlamingFoo Ivan Kurmanov Joe Higton Jon Hermansen Ken Swanson Phil Kania Mitchell Robert Utter Tom Hukins Brian Horakh Vishwanath Janmanchi amacleay jamadam Charles Howes Daniel Fackrell Dave Rolsky Dmitry Karasik Emmanuel 'BHS_error' Peroumalnaik Eric Johnson Gabor Szabo
-
 =over 4
 
 =item *
 
 Allen Lew <allen@alew.org>
+
+=item *
+
+Bas Bloemsaat <bas@bloemsaat.com>
+
+=item *
+
+Bas Bloemsaat <bas@tevreden.nl>
+
+=item *
+
+Brian Horakh <brianh@zoovy.com>
+
+=item *
+
+Charles Howes <charles.howes@globalrelay.net>
+
+=item *
+
+Daniel Fackrell <dfackrell@bluehost.com>
+
+=item *
+
+Dave Rolsky <autarch@urth.org>
+
+=item *
+
+Dmitry Karasik <dmitry@karasik.eu.org>
+
+=item *
+
+Emmanuel 'BHS_error' Peroumalnaik <peroumalnaik.emmanuel@gmail.com>
+
+=item *
+
+Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>
+
+=item *
+
+Eric Johnson <eric.git@iijo.org>
+
+=item *
+
+Gabor Szabo <gabor@szabgab.com>
 
 =item *
 
@@ -2399,10 +2469,6 @@ Tom Hukins <tom@eborcom.com>
 
 =item *
 
-Brian Horakh <brianh@zoovy.com>
-
-=item *
-
 Vishwanath Janmanchi <jvishwanath@gmail.com>
 
 =item *
@@ -2412,38 +2478,6 @@ amacleay <a.macleay@gmail.com>
 =item *
 
 jamadam <sugama@jamadam.com>
-
-=item *
-
-Charles Howes <charles.howes@globalrelay.net>
-
-=item *
-
-Daniel Fackrell <dfackrell@bluehost.com>
-
-=item *
-
-Dave Rolsky <autarch@urth.org>
-
-=item *
-
-Dmitry Karasik <dmitry@karasik.eu.org>
-
-=item *
-
-Emmanuel 'BHS_error' Peroumalnaik <peroumalnaik.emmanuel@gmail.com>
-
-=item *
-
-Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>
-
-=item *
-
-Eric Johnson <eric.git@iijo.org>
-
-=item *
-
-Gabor Szabo <gabor@szabgab.com>
 
 =back
 

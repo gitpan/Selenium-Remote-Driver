@@ -16,9 +16,9 @@ build_requires:
   Test::More: '0'
   lib: '0'
 configure_requires:
-  ExtUtils::MakeMaker: '0'
+  ExtUtils::MakeMaker: '6.30'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.140640'
+generated_by: 'Dist::Zilla version 5.014, CPAN::Meta::Converter version 2.140640'
 license: apache
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -58,9 +58,11 @@ requires:
 resources:
   bugtracker: https://github.com/gempesaw/Selenium-Remote-Driver/issues
   repository: git://github.com/gempesaw/Selenium-Remote-Driver.git
-version: '0.2151'
+version: '0.2152'
 x_contributors:
   - 'Allen Lew <allen@alew.org>'
+  - 'Bas Bloemsaat <bas@bloemsaat.com>'
+  - 'Bas Bloemsaat <bas@tevreden.nl>'
   - 'Brian Horakh <brianh@zoovy.com>'
   - 'Charles Howes <charles.howes@globalrelay.net>'
   - 'Daniel Fackrell <dfackrell@bluehost.com>'

@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver::Firefox::Profile;
-$Selenium::Remote::Driver::Firefox::Profile::VERSION = '0.2151'; # TRIAL
+$Selenium::Remote::Driver::Firefox::Profile::VERSION = '0.2152'; # TRIAL
 # ABSTRACT: Use custom profiles with Selenium::Remote::Driver
 
 use strict;
@@ -79,8 +79,9 @@ sub get_preference {
 sub add_extension {
     my ($self, $xpi) = @_;
 
+    croak 'File not found: ' . $xpi unless -e $xpi;
     my $xpi_abs_path = abs_path($xpi);
-    croak "$xpi_abs_path: extensions must be in .xpi format" unless $xpi_abs_path =~ /\.xpi$/;
+    croak '$xpi_abs_path: extensions must be in .xpi format' unless $xpi_abs_path =~ /\.xpi$/;
 
     push (@{$self->{extensions}}, $xpi_abs_path);
 }
@@ -174,7 +175,7 @@ Selenium::Remote::Driver::Firefox::Profile - Use custom profiles with Selenium::
 
 =head1 VERSION
 
-version 0.2151
+version 0.2152
 
 =head1 DESCRIPTION
 

@@ -18,9 +18,7 @@ my $harness = TestHarness->new(
     this_file => $FindBin::Script
 );
 my %selenium_args = %{ $harness->base_caps };
-unless ($harness->mocks_exist_for_platform) {
-    plan skip_all => "Mocking of tests is not been enabled for this platform";
-}
+$harness->skip_all_unless_mocks_exist;
 
 my $driver = Selenium::Remote::Driver->new(%selenium_args);
 my $website = 'http://localhost:63636';
@@ -176,6 +174,17 @@ WINDOW: {
     $ret = $driver->get_window_size();
     is ($ret->{'height'}, 640, 'Got the right height');
     is ($ret->{'width'}, 480, 'Got the right width');
+    $ret = $driver->maximize_window();
+    is ($ret, 1, "Got confirmation from maximize");
+
+  SKIP: {
+        skip 'headless browsers don\'t get maximized', 2
+          unless $^O =~ /darwin|MSWin32/;
+        $ret = $driver->get_window_size();
+        ok ($ret->{'height'} > 640, 'Height has increased');
+        ok ($ret->{'width'} > 480, 'Width has increased');
+    }
+
     $ret = $driver->get_page_source();
     ok($ret =~ m/^<html/i, 'Received page source');
     eval {$driver->set_implicit_wait_timeout(20001);};
@@ -245,7 +254,7 @@ FIND: {
       . " at " . __FILE__ . " line " . (__LINE__+1);
     eval { $driver->find_element("element_that_doesnt_exist","id"); };
     chomp $@;
-    is($@,$expected_err.".","find_element croaks properly");
+    like($@,qr/$expected_err/,"find_element croaks properly");
     my $elems = $driver->find_elements("//input[\@id='checky']");
     is(scalar(@$elems),1, 'Got an arrayref of WebElements');
     my @array_elems = $driver->find_elements("//input[\@id='checky']");

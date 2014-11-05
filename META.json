@@ -7,7 +7,7 @@
       "Mark Stosberg <mark@stosberg.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.140640",
+   "generated_by" : "Dist::Zilla version 5.014, CPAN::Meta::Converter version 2.140640",
    "license" : [
       "apache_2_0"
    ],
@@ -19,7 +19,7 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "ExtUtils::MakeMaker" : "6.30"
          }
       },
       "develop" : {
@@ -88,9 +88,11 @@
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.2151",
+   "version" : "0.2152",
    "x_contributors" : [
       "Allen Lew <allen@alew.org>",
+      "Bas Bloemsaat <bas@bloemsaat.com>",
+      "Bas Bloemsaat <bas@tevreden.nl>",
       "Brian Horakh <brianh@zoovy.com>",
       "Charles Howes <charles.howes@globalrelay.net>",
       "Daniel Fackrell <dfackrell@bluehost.com>",
