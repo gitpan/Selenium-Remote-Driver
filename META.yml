@@ -58,11 +58,10 @@ requires:
 resources:
   bugtracker: https://github.com/gempesaw/Selenium-Remote-Driver/issues
   repository: git://github.com/gempesaw/Selenium-Remote-Driver.git
-version: '0.2152'
+version: '0.2153'
 x_contributors:
   - 'Allen Lew <allen@alew.org>'
   - 'Bas Bloemsaat <bas@bloemsaat.com>'
-  - 'Bas Bloemsaat <bas@tevreden.nl>'
   - 'Brian Horakh <brianh@zoovy.com>'
   - 'Charles Howes <charles.howes@globalrelay.net>'
   - 'Daniel Fackrell <dfackrell@bluehost.com>'

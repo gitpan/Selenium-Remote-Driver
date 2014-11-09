@@ -5,6 +5,7 @@ META.json
 META.yml
 Makefile.PL
 README.md
+Selenium-Remote-Driver-0.2152/.travis.yml
 TAGS
 cpanfile
 dist.ini
