@@ -77,7 +77,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver/issues"
@@ -88,7 +88,7 @@
          "web" : "https://github.com/gempesaw/Selenium-Remote-Driver"
       }
    },
-   "version" : "0.2153",
+   "version" : "0.22",
    "x_contributors" : [
       "Allen Lew <allen@alew.org>",
       "Bas Bloemsaat <bas@bloemsaat.com>",
@@ -97,7 +97,6 @@
       "Daniel Fackrell <dfackrell@bluehost.com>",
       "Dave Rolsky <autarch@urth.org>",
       "Dmitry Karasik <dmitry@karasik.eu.org>",
-      "Emmanuel 'BHS_error' Peroumalnaik <peroumalnaik.emmanuel@gmail.com>",
       "Emmanuel Peroumalnaik <eperoumalnaik@weborama.com>",
       "Eric Johnson <eric.git@iijo.org>",
       "Gabor Szabo <gabor@szabgab.com>",
