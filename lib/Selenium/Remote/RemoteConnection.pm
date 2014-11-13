@@ -1,5 +1,5 @@
 package Selenium::Remote::RemoteConnection;
-$Selenium::Remote::RemoteConnection::VERSION = '0.22';
+$Selenium::Remote::RemoteConnection::VERSION = '0.2201';
 #ABSTRACT: Connect to a selenium server
 
 use Moo;
@@ -116,7 +116,11 @@ sub _process_response {
     my $json = JSON->new;
 
     if ($response->is_redirect) {
-        return $self->request('GET', $response->header('location'));
+        my $redirect = {
+            method => 'GET',
+            url    => $response->header('location')
+        };
+        return $self->request($redirect);
     }
     else {
         my $decoded_json = undef;
@@ -181,7 +185,7 @@ Selenium::Remote::RemoteConnection - Connect to a selenium server
 
 =head1 VERSION
 
-version 0.22
+version 0.2201
 
 =head1 SEE ALSO
 

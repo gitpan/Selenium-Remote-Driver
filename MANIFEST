@@ -29,6 +29,7 @@ t/03-spec-coverage.t
 t/04-commands-implemented.t
 t/10-switch-to-window.t
 t/Firefox-Profile.t
+t/Remote-Connection.t
 t/Test-Selenium-Remote-Driver-google.t
 t/Test-Selenium-Remote-Driver.t
 t/Test-Selenium-Remote-WebElement.t
