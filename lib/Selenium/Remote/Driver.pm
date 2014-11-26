@@ -1,5 +1,5 @@
 package Selenium::Remote::Driver;
-$Selenium::Remote::Driver::VERSION = '0.2201';
+$Selenium::Remote::Driver::VERSION = '0.2202';
 # ABSTRACT: Perl Client for Selenium Remote Driver
 
 use Moo;
@@ -868,8 +868,7 @@ sub find_element {
             driver => $self );
     }
     else {
-        croak "Bad method, expected - class, class_name, css, id, link,
-                link_text, partial_link_text, name, tag_name, xpath";
+        croak "Bad method, expected: " . join(', ', keys %{ $self->FINDERS });
     }
 }
 
@@ -914,8 +913,7 @@ sub find_elements {
         return wantarray? @{$elem_obj_arr} : $elem_obj_arr ;
     }
     else {
-        croak "Bad method, expected - class, class_name, css, id, link,
-                link_text, partial_link_text, name, tag_name, xpath";
+        croak "Bad method, expected: " . join(', ', keys %{ $self->FINDERS });
     }
 }
 
@@ -949,8 +947,7 @@ sub find_child_element {
             driver => $self );
     }
     else {
-        croak "Bad method, expected - class, class_name, css, id, link,
-                link_text, partial_link_text, name, tag_name, xpath";
+        croak "Bad method, expected: " . join(', ', keys %{ $self->FINDERS });
     }
 }
 
@@ -991,8 +988,7 @@ sub find_child_elements {
         return wantarray ? @{$elem_obj_arr} : $elem_obj_arr;
     }
     else {
-        croak "Bad method, expected - class, class_name, css, id, link,
-                link_text, partial_link_text, name, tag_name, xpath";
+        croak "Bad method, expected: " . join(', ', keys %{ $self->FINDERS });
     }
 }
 
@@ -1174,7 +1170,7 @@ Selenium::Remote::Driver - Perl Client for Selenium Remote Driver
 
 =head1 VERSION
 
-version 0.2201
+version 0.2202
 
 =head1 SYNOPSIS
 

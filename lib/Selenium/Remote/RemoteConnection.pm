@@ -1,5 +1,5 @@
 package Selenium::Remote::RemoteConnection;
-$Selenium::Remote::RemoteConnection::VERSION = '0.2201';
+$Selenium::Remote::RemoteConnection::VERSION = '0.2202';
 #ABSTRACT: Connect to a selenium server
 
 use Moo;
@@ -185,7 +185,7 @@ Selenium::Remote::RemoteConnection - Connect to a selenium server
 
 =head1 VERSION
 
-version 0.2201
+version 0.2202
 
 =head1 SEE ALSO
 
